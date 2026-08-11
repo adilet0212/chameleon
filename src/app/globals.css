@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/*
+  Chameleon design foundation.
+
+  There is exactly one design system here. Brands do not get their own stylesheets,
+  their own components, or their own overrides — they get a set of token values,
+  written onto a wrapper element as custom properties at request time. Everything
+  below reads from those properties, so a new brand is a database row and never a
+  code change.
+
+  The structural decisions — spacing rhythm, type scale, line lengths, border
+  weights — are shared and fixed. That is what keeps three different brands looking
+  like they came out of the same studio.
+*/
+
+@theme inline {
+  /* Brand-controlled. Every value here is supplied per tenant from Postgres. */
+  --color-primary: var(--t-primary);
+  --color-primary-ink: var(--t-primary-ink);
+  --color-accent: var(--t-accent);
+  --color-surface: var(--t-surface);
+  --color-raise: var(--t-surface-raise);
+  --color-ink: var(--t-ink);
+  --color-muted: var(--t-ink-muted);
+  --color-hairline: var(--t-border);
+
+  --font-display: var(--t-font-display);
+  --font-body: var(--t-font-body);
+
+  --radius-brand: var(--t-radius);
+  --radius-brand-lg: calc(var(--t-radius) * 1.75);
+
+  /* Shared, not brand-controlled. The type scale is fluid so the phone case and
+     the desktop case are the same design rather than two tunings of one. */
+  --text-display: clamp(2.25rem, 1.6rem + 3.2vw, 4.5rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+
+  --text-title: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem);
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.02em;
+
+  --text-heading: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  --text-heading--line-height: 1.25;
+  --text-heading--letter-spacing: -0.01em;
+
+  --text-lede: clamp(1.05rem, 1rem + 0.35vw, 1.25rem);
+  --text-lede--line-height: 1.6;
+
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.4;
+  --text-micro--letter-spacing: 0.08em;
+}
+
+/*
+  Default token values. These are the neutral fallback used by the project's own
+  chrome (the index page, the 404) where no tenant is in scope. A tenant wrapper
+  overrides all of them inline.
+*/
+:root {
+  --t-primary: #1e1e1e;
+  --t-primary-ink: #ffffff;
+  --t-accent: #4b4b4b;
+  --t-surface: #fbfbfa;
+  --t-surface-raise: #ffffff;
+  --t-ink: #16181a;
+  --t-ink-muted: #6a7075;
+  --t-border: #e4e5e7;
+  --t-font-display: var(--font-inter), system-ui, sans-serif;
+  --t-font-body: var(--font-inter), system-ui, sans-serif;
+  --t-radius: 0.5rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--t-surface);
+  color: var(--t-ink);
+  font-family: var(--t-font-body);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+  Tenant re-skin transition.
+
+  Only colour transitions — the switch should feel like the same page changing
+  clothes, not like a page reload. Fonts and radii swap instantly underneath the
+  colour fade, which reads as intentional rather than as layout thrash.
+*/
+.tenant-scope {
+  transition:
+    background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tenant-scope *,
+.tenant-scope *::before,
+.tenant-scope *::after {
+  transition:
+    background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    fill 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tenant-scope,
+  .tenant-scope *,
+  .tenant-scope *::before,
+  .tenant-scope *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
+
+/* Focus treatment is shared and non-negotiable across brands. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--t-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background-color: var(--t-accent);
+  color: var(--t-primary-ink);
+}

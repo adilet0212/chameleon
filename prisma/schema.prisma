@@ -1,0 +1,119 @@
+// Chameleon — multi-tenant brand platform
+//
+// Modelling notes:
+//   A Tenant is a client brand. Everything a brand owns hangs off it, and every
+//   tenant-scoped read is keyed by tenantId first. That single rule is what makes
+//   "one codebase, many brands" safe: there is no query path to a row that does
+//   not start at a tenant.
+//
+//   Theme is split from Tenant deliberately. Design tokens change on a different
+//   cadence than brand identity (a designer retunes tokens; a brand's name and
+//   slug are effectively immutable), and keeping them in their own row means a
+//   theme edit never rewrites the tenant record.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  tagline   String
+  about     String
+  // Each brand names its catalogue differently — "Menu", "Inventory", "Schedule".
+  // Storing the noun keeps the shared components brand-agnostic without a switch
+  // statement per tenant in the UI layer.
+  itemNoun  String
+  itemNounSingular String
+  ctaLabel  String
+  // The catalogue lives at a different path for each brand — /rook-and-ridge/menu,
+  // /northaven/inventory, /foundry/schedule. The URL structure itself is tenant
+  // data, resolved per request, not a route hardcoded in the filesystem.
+  catalogSlug String
+
+  theme     Theme?
+  products  Product[]
+  pages     Page[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tenants")
+}
+
+model Theme {
+  id       String @id @default(cuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Design tokens. These are the only things that vary between brands — the
+  // component layer and the spacing/type system are shared and identical.
+  primary      String // hex, brand primary
+  primaryInk   String // text colour that meets contrast on `primary`
+  accent       String // hex, used sparingly for emphasis
+  surface      String // page background
+  surfaceRaise String // card / raised surface
+  ink          String // primary body text
+  inkMuted     String // secondary text
+  border       String // hairline colour
+
+  fontDisplay String // headings
+  fontBody    String // body copy
+  radius      String // border radius scale root, e.g. "0.25rem"
+  imagery     String // "geometric" | "arc" | "grid" — abstract placeholder treatment
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("themes")
+}
+
+model Product {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  slug        String
+  name        String
+  blurb       String
+  description String
+  category    String
+  priceCents  Int
+  featured    Boolean @default(false)
+  // Deterministic seed for the generated abstract artwork, so a product's
+  // visual identity is stable across renders and deploys.
+  artSeed     Int
+
+  createdAt DateTime @default(now())
+
+  // The detail-page lookup is `WHERE tenantId = ? AND slug = ?`. This composite
+  // unique both enforces "slug is unique within a brand, not globally" and backs
+  // that lookup with an index. Benchmarked in scripts/benchmark.ts — dropping it
+  // turns the lookup into a sequential scan over the whole product table.
+  @@unique([tenantId, slug])
+  // Listing pages read `WHERE tenantId = ? ORDER BY featured DESC, createdAt DESC`.
+  @@index([tenantId, featured, createdAt])
+  @@index([tenantId, category])
+  @@map("products")
+}
+
+model Page {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  slug    String
+  title   String
+  heading String
+  body    String
+
+  @@unique([tenantId, slug])
+  @@map("pages")
+}
