@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTenant, getProduct, listRelated, formatPrice } from "@/lib/tenant";
-import { BrandArt } from "@/components/BrandArt";
+import { ProductImage } from "@/components/ProductImage";
 import { ProductCard } from "@/components/ProductCard";
 
 /*
@@ -73,14 +73,17 @@ export default async function ItemPage({ params }: { params: Promise<Params> }) 
 
       <div className="mx-auto w-full max-w-6xl px-5 py-7 sm:px-8 sm:py-10">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
-          <div className="rise overflow-hidden rounded-brand-xl border border-hairline shadow-brand-lift">
-            <BrandArt
-              seed={product.artSeed}
-              treatment={treatment}
-              hero
-              className="aspect-[4/3] w-full"
-            />
-          </div>
+          <ProductImage
+            src={product.imageUrl}
+            alt={product.name}
+            seed={product.artSeed}
+            treatment={treatment}
+            hero
+            priority
+            tint="soft"
+            className="rise aspect-[4/3] w-full rounded-brand-xl border border-hairline shadow-brand-lift"
+            sizes="(max-width: 1024px) 100vw, 52vw"
+          />
 
           <div className="rise rise-2 lg:pt-3">
             <p className="text-micro font-semibold uppercase text-accent-ink">

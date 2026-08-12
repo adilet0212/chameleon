@@ -1,0 +1,10 @@
+import { chromium } from "@playwright/test";
+import { pathToFileURL } from "node:url";
+import { join } from "node:path";
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1800, height: 1200 } });
+await p.goto(pathToFileURL(join(process.cwd(), ".tmpwork/sheet.html")).href, { waitUntil: "load" });
+await p.waitForTimeout(8000);
+await p.screenshot({ path: ".tmpwork/contact-sheet.png", fullPage: true });
+await b.close();
+console.log("sheet written");

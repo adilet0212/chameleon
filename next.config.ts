@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   // breaks it. Marking it external keeps the engine loadable on Vercel.
   serverExternalPackages: ["@prisma/client", "prisma"],
 
+  images: {
+    // Photography is served from Unsplash and re-optimised by next/image, which
+    // is what emits AVIF/WebP at the sizes actually requested rather than
+    // shipping a 2000px JPEG to a phone.
+    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [390, 640, 828, 1080, 1200, 1920],
+    imageSizes: [96, 128, 192, 256, 384],
+    minimumCacheTTL: 2678400,
+  },
+
   async headers() {
     return [
       {

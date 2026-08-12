@@ -46,6 +46,10 @@ model Tenant {
   // only differed by palette would not really be a different brand, so structure is
   // a token like everything else.
   layoutVariant String
+  // Atmospheric photography. heroImage backs the hero; bandImage backs one
+  // mid-page section. Both nullable — a brand with no assets still renders.
+  heroImage     String?
+  bandImage     String?
 
   theme     Theme?
   products  Product[]
@@ -120,9 +124,14 @@ model Product {
   // customer-facing page. Every user-facing query filters on this; the benchmark
   // deliberately does not.
   isCatalogueVisible Boolean @default(false)
-  // Deterministic seed for the generated abstract artwork, so a product's
-  // visual identity is stable across renders and deploys.
+  // Deterministic seed for the generated abstract artwork. Still the fallback
+  // whenever imageUrl is null — the generated tail has no photography, and a
+  // brand onboarded without assets still renders something on-brand.
   artSeed     Int
+  // Free-licence photograph for this item. Nullable on purpose: photography is
+  // merchandising, not a structural requirement, so the component falls back to
+  // generated art rather than to a broken image.
+  imageUrl    String?
 
   createdAt DateTime @default(now())
 

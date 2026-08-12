@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Product, Tenant, Theme } from "@prisma/client";
+import Image from "next/image";
 import { BrandArt } from "@/components/BrandArt";
+import { ProductImage } from "@/components/ProductImage";
 import { ProductCard } from "@/components/ProductCard";
 
 /*
@@ -35,6 +37,42 @@ const itemHref = (t: TenantWithTheme, slug: string) =>
   `/${t.slug}/${t.catalogSlug}/${slug}`;
 
 /* ---------------------------------------------------------------- shared bits */
+
+/*
+  Atmospheric backdrop for a full-bleed section.
+
+  Two layers over the photograph: a wash of the brand primary in multiply, and a
+  vertical scrim. The wash is what keeps a free-licence gym photo from looking
+  like a free-licence gym photo — it pulls the image toward the tenant's palette.
+  The scrim is purely functional: it guarantees text contrast regardless of what
+  the photograph happens to be doing behind that corner.
+*/
+function Backdrop({
+  src,
+  overlay = "hero",
+}: {
+  src: string | null;
+  overlay?: "hero" | "band";
+}) {
+  if (!src) return null;
+  return (
+    <>
+      <Image
+        src={src}
+        alt=""
+        aria-hidden
+        fill
+        priority={overlay === "hero"}
+        sizes="100vw"
+        className="-z-20 object-cover"
+      />
+      <span
+        aria-hidden
+        className={`absolute inset-0 -z-10 bg-primary ${overlay === "hero" ? "opacity-[0.82]" : "opacity-[0.9]"}`}
+      />
+    </>
+  );
+}
 
 function Cta({
   href,
@@ -166,14 +204,17 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
               </Cta>
             </div>
           </div>
-          <div className="rise rise-2 overflow-hidden rounded-brand-xl border border-hairline shadow-brand-lift">
-            <BrandArt
-              seed={tenant.name.length * 7919}
-              treatment={treatment}
-              hero
-              className="aspect-[5/4] w-full"
-            />
-          </div>
+          <ProductImage
+            src={tenant.heroImage}
+            alt=""
+            seed={tenant.name.length * 7919}
+            treatment={treatment}
+            hero
+            priority
+            tint="soft"
+            className="rise rise-2 aspect-[5/4] w-full rounded-brand-xl border border-hairline shadow-brand-lift"
+            sizes="(max-width: 1024px) 100vw, 45vw"
+          />
         </div>
       </section>
 
@@ -209,12 +250,13 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
         </section>
       )}
 
-      <section>
+      <section className="relative isolate overflow-hidden">
+        <Backdrop src={tenant.bandImage} overlay="band" />
         <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <h2 className="display-type text-title font-semibold text-ink">
+          <h2 className="display-type text-title font-semibold text-primary-ink">
             Browse the {tenant.itemNoun.toLowerCase()}
           </h2>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-primary-ink/70">
             {totalVisible} items across {categories.length} categories.
           </p>
           <div className="mt-8">
@@ -256,14 +298,17 @@ function Dense({ tenant, featured, categories, totalVisible }: Props) {
                 </Cta>
               </div>
             </div>
-            <div className="overflow-hidden rounded-brand border border-hairline shadow-brand">
-              <BrandArt
-                seed={tenant.name.length * 7919}
-                treatment={treatment}
-                hero
-                className="aspect-[16/7] w-full lg:aspect-[4/3]"
-              />
-            </div>
+            <ProductImage
+              src={tenant.heroImage}
+              alt=""
+              seed={tenant.name.length * 7919}
+              treatment={treatment}
+              hero
+              priority
+              tint="soft"
+              className="aspect-[16/7] w-full rounded-brand border border-hairline shadow-brand lg:aspect-[4/3]"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+            />
           </div>
 
           {/* Spec strip — reads as dealer data, and gives the compact hero a base. */}
@@ -335,12 +380,7 @@ function Showcase({ tenant, featured, categories, totalVisible }: Props) {
   return (
     <>
       <section className="relative isolate overflow-hidden bg-primary">
-        <BrandArt
-          seed={tenant.name.length * 7919}
-          treatment={treatment}
-          hero
-          className="absolute inset-0 -z-10 size-full opacity-[0.16]"
-        />
+        <Backdrop src={tenant.heroImage} overlay="hero" />
         <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-32">
           <div className="rise max-w-3xl">
             <p className="text-micro font-semibold uppercase text-primary-ink/70">
@@ -398,12 +438,13 @@ function Showcase({ tenant, featured, categories, totalVisible }: Props) {
         </div>
       </section>
 
-      <section className="bg-brandtint">
+      <section className="relative isolate overflow-hidden">
+        <Backdrop src={tenant.bandImage} overlay="band" />
         <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
-          <h2 className="display-type text-title font-semibold text-ink">
+          <h2 className="display-type text-title font-semibold text-primary-ink">
             Train how you want
           </h2>
-          <p className="mt-2 max-w-[48ch] text-muted">
+          <p className="mt-2 max-w-[48ch] text-primary-ink/70">
             {totalVisible} sessions a week across {categories.length} disciplines,
             every one coached and capped at twelve.
           </p>

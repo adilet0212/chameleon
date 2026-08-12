@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Product } from "@prisma/client";
-import { BrandArt } from "@/components/BrandArt";
+import { ProductImage } from "@/components/ProductImage";
 import { formatPrice } from "@/lib/tenant";
 
 /*
@@ -30,7 +30,10 @@ type Props = {
 const ART_ASPECT: Record<CardSize, string> = {
   lead: "aspect-[4/3] w-full",
   standard: "aspect-[3/2] w-full",
-  compact: "size-[92px] shrink-0 sm:aspect-[4/3] sm:size-auto sm:w-full",
+  // self-stretch rather than a fixed square: the card grows with its copy, and a
+  // 92px box left a band of empty card beside three lines of text.
+  compact:
+    "w-[104px] shrink-0 self-stretch sm:aspect-[4/3] sm:w-full sm:self-auto",
 };
 
 export function ProductCard({
@@ -53,14 +56,22 @@ export function ProductCard({
         `rise-${Math.min(4, (index % 4) + 1)}`,
       ].join(" ")}
     >
-      <div className={`overflow-hidden ${compact ? "shrink-0" : ""}`}>
-        <BrandArt
-          seed={product.artSeed}
-          treatment={treatment}
-          hero={lead}
-          className={`card-art ${ART_ASPECT[size]}`}
-        />
-      </div>
+      <ProductImage
+        src={product.imageUrl}
+        alt={product.name}
+        seed={product.artSeed}
+        treatment={treatment}
+        hero={lead}
+        tint="soft"
+        className={`${compact ? "shrink-0" : ""} ${ART_ASPECT[size]}`}
+        sizes={
+          compact
+            ? "(max-width: 640px) 92px, (max-width: 1024px) 50vw, 25vw"
+            : lead
+              ? "(max-width: 1024px) 100vw, 50vw"
+              : "(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+        }
+      />
 
       {/* min-w-0 lets long names truncate instead of forcing the row wider than
           the viewport. */}

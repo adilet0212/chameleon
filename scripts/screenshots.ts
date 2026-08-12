@@ -33,7 +33,20 @@ async function main() {
   for (const s of SHOTS) {
     const page = await phone.newPage();
     await page.goto(BASE + s.path, { waitUntil: "load" });
-    await page.waitForTimeout(600);
+    // Scroll the page so lazy images enter the viewport, then wait for every
+    // <img> to report complete. Without this the capture races the network and
+    // photographs come out as empty boxes.
+    await page.evaluate(async () => {
+      window.scrollTo(0, document.body.scrollHeight);
+      await new Promise((r) => setTimeout(r, 400));
+      window.scrollTo(0, 0);
+    });
+    await page.waitForFunction(
+      () => Array.from(document.images).every((i) => i.complete && i.naturalWidth > 0),
+      undefined,
+      { timeout: 20000 },
+    ).catch(() => {});
+    await page.waitForTimeout(900);
     await page.screenshot({ path: join(OUT, `${s.name}.png`) });
     await page.close();
   }
@@ -43,7 +56,20 @@ async function main() {
   for (const s of ["/", "/rook-and-ridge", "/northaven", "/foundry"]) {
     const page = await desktop.newPage();
     await page.goto(BASE + s, { waitUntil: "load" });
-    await page.waitForTimeout(600);
+    // Scroll the page so lazy images enter the viewport, then wait for every
+    // <img> to report complete. Without this the capture races the network and
+    // photographs come out as empty boxes.
+    await page.evaluate(async () => {
+      window.scrollTo(0, document.body.scrollHeight);
+      await new Promise((r) => setTimeout(r, 400));
+      window.scrollTo(0, 0);
+    });
+    await page.waitForFunction(
+      () => Array.from(document.images).every((i) => i.complete && i.naturalWidth > 0),
+      undefined,
+      { timeout: 20000 },
+    ).catch(() => {});
+    await page.waitForTimeout(900);
     await page.screenshot({
       path: join(OUT, `desktop${s === "/" ? "-index" : s.replace(/\//g, "-")}.png`),
     });

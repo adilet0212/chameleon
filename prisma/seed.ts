@@ -26,6 +26,7 @@ type SeedProduct = {
   category: string;
   priceCents: number;
   featured?: boolean;
+  imageUrl?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -44,6 +45,8 @@ const rookRidge = {
   ctaLabel: "See the menu",
   catalogSlug: "menu",
   layoutVariant: "editorial",
+  heroImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24",
+  bandImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff",
   theme: {
     primary: "#4A3428",
     primaryInk: "#FFFFFF",
@@ -70,6 +73,7 @@ const rookRidge = {
   products: [
     {
       slug: "ridge-house-espresso",
+      imageUrl: "https://images.unsplash.com/photo-1510707577719-ae7c14805e3a",
       name: "Ridge House Espresso",
       blurb: "Cocoa, dried fig, and a long finish.",
       description:
@@ -80,6 +84,7 @@ const rookRidge = {
     },
     {
       slug: "cortado",
+      imageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085",
       name: "Cortado",
       blurb: "Two ounces, cut with steamed milk.",
       description:
@@ -89,6 +94,7 @@ const rookRidge = {
     },
     {
       slug: "flat-white",
+      imageUrl: "https://images.unsplash.com/photo-1541167760496-1628856ab772",
       name: "Flat White",
       blurb: "Double ristretto, microfoam, no dry foam.",
       description:
@@ -98,6 +104,7 @@ const rookRidge = {
     },
     {
       slug: "kenya-nyeri-aa",
+      imageUrl: "https://images.unsplash.com/photo-1442512595331-e89e73853f31",
       name: "Kenya Nyeri AA",
       blurb: "Blackcurrant, tomato leaf, grapefruit acidity.",
       description:
@@ -108,6 +115,7 @@ const rookRidge = {
     },
     {
       slug: "colombia-huila-decaf",
+      imageUrl: "https://images.unsplash.com/photo-1442550528053-c431ecb55509",
       name: "Colombia Huila Decaf",
       blurb: "Sugarcane process. Caramel and red apple.",
       description:
@@ -117,6 +125,7 @@ const rookRidge = {
     },
     {
       slug: "batch-brew",
+      imageUrl: "https://images.unsplash.com/photo-1447933601403-0c6688de566e",
       name: "Batch Brew",
       blurb: "Whatever is on filter today, ground fresh per batch.",
       description:
@@ -126,6 +135,7 @@ const rookRidge = {
     },
     {
       slug: "ridge-house-1kg",
+      imageUrl: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e",
       name: "Ridge House — 1kg",
       blurb: "Wholesale bag of the house espresso.",
       description:
@@ -136,6 +146,7 @@ const rookRidge = {
     },
     {
       slug: "rotating-single-origin-340g",
+      imageUrl: "https://images.unsplash.com/photo-1442550528053-c431ecb55509",
       name: "Rotating Single Origin — 340g",
       blurb: "This month's featured lot.",
       description:
@@ -145,6 +156,7 @@ const rookRidge = {
     },
     {
       slug: "cold-brew-tap",
+      imageUrl: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735",
       name: "Cold Brew, On Tap",
       blurb: "Eighteen-hour steep, nitrogen line.",
       description:
@@ -154,6 +166,7 @@ const rookRidge = {
     },
     {
       slug: "iced-filter",
+      imageUrl: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5",
       name: "Iced Filter",
       blurb: "Brewed hot onto ice. Bright, not bitter.",
       description:
@@ -163,6 +176,7 @@ const rookRidge = {
     },
     {
       slug: "cardamom-morning-bun",
+      imageUrl: "https://images.unsplash.com/photo-1555507036-ab1f4038808a",
       name: "Cardamom Morning Bun",
       blurb: "Laminated overnight, baked at five.",
       description:
@@ -172,6 +186,7 @@ const rookRidge = {
     },
     {
       slug: "sourdough-and-cultured-butter",
+      imageUrl: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73",
       name: "Sourdough & Cultured Butter",
       blurb: "Two thick slices, sea salt.",
       description:
@@ -206,6 +221,8 @@ const northaven = {
   ctaLabel: "Browse inventory",
   catalogSlug: "inventory",
   layoutVariant: "dense",
+  heroImage: "https://images.unsplash.com/photo-1567818735868-e71b99932e29",
+  bandImage: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
   theme: {
     primary: "#16263A",
     primaryInk: "#FFFFFF",
@@ -232,6 +249,7 @@ const northaven = {
   products: [
     {
       slug: "meridian-ex-sedan",
+      imageUrl: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
       name: "Meridian EX",
       blurb: "Mid-size sedan. 2.0L turbo, front-wheel drive.",
       description:
@@ -242,6 +260,7 @@ const northaven = {
     },
     {
       slug: "meridian-ex-touring",
+      imageUrl: "https://images.unsplash.com/photo-1601929862217-f1bf94503333",
       name: "Meridian EX Touring",
       blurb: "Sedan, higher trim. Leather, adaptive cruise.",
       description:
@@ -251,6 +270,7 @@ const northaven = {
     },
     {
       slug: "kestrel-awd",
+      imageUrl: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b",
       name: "Kestrel AWD",
       blurb: "Compact SUV. All-wheel drive standard.",
       description:
@@ -261,6 +281,7 @@ const northaven = {
     },
     {
       slug: "kestrel-awd-seven",
+      imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
       name: "Kestrel AWD Seven",
       blurb: "Three-row variant. Seats seven.",
       description:
@@ -270,6 +291,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500",
+      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
       name: "Haulmark 1500",
       blurb: "Half-ton pickup. 3.5L V6, 4x4.",
       description:
@@ -279,6 +301,7 @@ const northaven = {
     },
     {
       slug: "haulmark-2500-hd",
+      imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
       name: "Haulmark 2500 HD",
       blurb: "Three-quarter ton. Diesel.",
       description:
@@ -288,6 +311,7 @@ const northaven = {
     },
     {
       slug: "volta-e40",
+      imageUrl: "https://images.unsplash.com/photo-1560958089-b8a1929cea89",
       name: "Volta e40",
       blurb: "Battery electric. 412 km rated range.",
       description:
@@ -298,6 +322,7 @@ const northaven = {
     },
     {
       slug: "volta-e40-long-range",
+      imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7",
       name: "Volta e40 Long Range",
       blurb: "Larger pack. 540 km rated range.",
       description:
@@ -307,6 +332,7 @@ const northaven = {
     },
     {
       slug: "meridian-ex-cpo-2022",
+      imageUrl: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
       name: "Meridian EX — Certified, 2022",
       blurb: "48,200 km. One owner. No accidents.",
       description:
@@ -316,6 +342,7 @@ const northaven = {
     },
     {
       slug: "kestrel-cpo-2021",
+      imageUrl: "https://images.unsplash.com/photo-1533106418989-88406c7cc8ca",
       name: "Kestrel AWD — Certified, 2021",
       blurb: "71,900 km. Two owners. Minor rear panel repair.",
       description:
@@ -325,6 +352,7 @@ const northaven = {
     },
     {
       slug: "volta-e40-cpo-2023",
+      imageUrl: "https://images.unsplash.com/photo-1560958089-b8a1929cea89",
       name: "Volta e40 — Certified, 2023",
       blurb: "29,400 km. Battery health 97%.",
       description:
@@ -334,6 +362,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500-cpo-2020",
+      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
       name: "Haulmark 1500 — Certified, 2020",
       blurb: "112,000 km. Fleet-maintained.",
       description:
@@ -368,6 +397,8 @@ const foundry = {
   ctaLabel: "View the schedule",
   catalogSlug: "schedule",
   layoutVariant: "showcase",
+  heroImage: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f",
+  bandImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
   theme: {
     primary: "#12291F",
     primaryInk: "#FFFFFF",
@@ -394,6 +425,7 @@ const foundry = {
   products: [
     {
       slug: "barbell-fundamentals",
+      imageUrl: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
       name: "Barbell Fundamentals",
       blurb: "60 min. Squat, hinge, press. No experience needed.",
       description:
@@ -404,6 +436,7 @@ const foundry = {
     },
     {
       slug: "strength-block",
+      imageUrl: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712",
       name: "Strength Block",
       blurb: "75 min. Programmed progressive loading.",
       description:
@@ -413,6 +446,7 @@ const foundry = {
     },
     {
       slug: "posterior-chain",
+      imageUrl: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61",
       name: "Posterior Chain",
       blurb: "50 min. Hinge-dominant accessory work.",
       description:
@@ -422,6 +456,7 @@ const foundry = {
     },
     {
       slug: "engine",
+      imageUrl: "https://images.unsplash.com/photo-1519505907962-0a6cb0167c73",
       name: "Engine",
       blurb: "45 min. Intervals on rower, bike, ski.",
       description:
@@ -432,6 +467,7 @@ const foundry = {
     },
     {
       slug: "circuit-45",
+      imageUrl: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2",
       name: "Circuit 45",
       blurb: "45 min. Full body, moderate load, continuous.",
       description:
@@ -441,6 +477,7 @@ const foundry = {
     },
     {
       slug: "hill-intervals",
+      imageUrl: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c",
       name: "Hill Intervals",
       blurb: "40 min. Treadmill, graded, coached pacing.",
       description:
@@ -450,6 +487,7 @@ const foundry = {
     },
     {
       slug: "mobility-reset",
+      imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
       name: "Mobility Reset",
       blurb: "40 min. Loaded ranges, not stretching.",
       description:
@@ -459,6 +497,7 @@ const foundry = {
     },
     {
       slug: "shoulders-and-t-spine",
+      imageUrl: "https://images.unsplash.com/photo-1591258370814-01609b341790",
       name: "Shoulders & T-Spine",
       blurb: "35 min. Overhead position work.",
       description:
@@ -468,6 +507,7 @@ const foundry = {
     },
     {
       slug: "cycle-45",
+      imageUrl: "https://images.unsplash.com/photo-1591741535018-d042766c62eb",
       name: "Cycle 45",
       blurb: "45 min. Power-metered, no choreography.",
       description:
@@ -478,6 +518,7 @@ const foundry = {
     },
     {
       slug: "threshold-test",
+      imageUrl: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f",
       name: "Threshold Test",
       blurb: "30 min. Establishes your training zones.",
       description:
@@ -487,6 +528,7 @@ const foundry = {
     },
     {
       slug: "recovery-flow",
+      imageUrl: "https://images.unsplash.com/photo-1518611012118-696072aa579a",
       name: "Recovery Flow",
       blurb: "50 min. Low intensity, breath-led.",
       description:
@@ -496,6 +538,7 @@ const foundry = {
     },
     {
       slug: "sauna-and-contrast",
+      imageUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
       name: "Sauna & Contrast",
       blurb: "45 min. Booked in blocks of four.",
       description:
@@ -582,6 +625,8 @@ async function main() {
         ctaLabel: t.ctaLabel,
         catalogSlug: t.catalogSlug,
         layoutVariant: t.layoutVariant,
+        heroImage: t.heroImage,
+        bandImage: t.bandImage,
         theme: { create: t.theme },
         pages: { create: t.pages },
       },
@@ -599,6 +644,7 @@ async function main() {
         priceCents: p.priceCents,
         featured: p.featured ?? false,
         isCatalogueVisible: true,
+        imageUrl: p.imageUrl ?? null,
         artSeed: (idx + 1) * 977 + i * 131,
         createdAt: new Date(Date.now() - i * 3_600_000),
       })),

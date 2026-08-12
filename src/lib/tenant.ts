@@ -130,6 +130,15 @@ export const getPage = cache(async (tenantId: string, slug: string) => {
   });
 });
 
+/**
+ * Tenant item nouns are data ("Class", "Vehicle", "Item"), so pluralising by
+ * appending "s" produced "12 classs". Sibilant endings take -es.
+ */
+export function pluralize(noun: string, count: number): string {
+  if (count === 1) return noun;
+  return /(s|x|z|ch|sh)$/i.test(noun) ? `${noun}es` : `${noun}s`;
+}
+
 export function formatPrice(cents: number): string {
   return new Intl.NumberFormat("en-CA", {
     style: "currency",

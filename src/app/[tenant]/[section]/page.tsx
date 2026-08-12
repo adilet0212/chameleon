@@ -7,6 +7,7 @@ import {
   listProducts,
   listCategories,
   countProducts,
+  pluralize,
 } from "@/lib/tenant";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -84,10 +85,7 @@ export default async function SectionPage({
               {tenant.itemNoun}
             </h1>
             <p className="mt-2.5 text-sm text-muted">
-              {total}{" "}
-              {total === 1
-                ? tenant.itemNounSingular.toLowerCase()
-                : `${tenant.itemNounSingular.toLowerCase()}s`}
+              {total} {pluralize(tenant.itemNounSingular.toLowerCase(), total)}
               {category ? ` in ${category}` : ""}
             </p>
 
