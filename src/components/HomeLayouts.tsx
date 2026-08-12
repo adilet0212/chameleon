@@ -215,21 +215,20 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
   return (
     <>
       {/*
-        Asymmetric by construction. The photograph runs to the right edge of the
-        viewport and is taller than the text column, so it reads as an editorial
-        spread rather than an image inset beside a paragraph.
+        Asymmetric, but contained rather than full-bleed. An earlier version ran
+        the photograph to the right edge of the viewport at 56vw; a café interior
+        is a wide establishing shot and at that scale it dominated the headline
+        instead of supporting it. This sits between the two: the image column is
+        a little wider than the copy column and the picture is taller than it was
+        originally, so it carries weight without taking over.
 
-        This is a two-column grid rather than an absolutely positioned image: at
-        56vw the absolute version overlapped the centred text container and
-        clipped the headline. A grid track cannot overlap its sibling, so the
-        failure is structurally impossible rather than tuned around.
-
-        The left padding reproduces where `max-w-6xl mx-auto` would put the
-        container edge, so the copy still lines up with every section below it.
+        Still a grid rather than an absolutely positioned image — the absolute
+        version overlapped the centred container and clipped the headline, and a
+        grid track cannot overlap its sibling.
       */}
-      <section className="lg:grid lg:grid-cols-[minmax(0,1fr)_56%] lg:items-stretch">
-        <div className="px-5 pb-12 pt-12 sm:px-8 sm:pt-16 lg:py-24 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-12">
-          <div className="rise lg:max-w-[34rem]">
+      <section className="mx-auto w-full max-w-6xl px-5 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:gap-14">
+          <div className="rise">
             <Eyebrow>{tenant.name}</Eyebrow>
             <h1 className="display-type mt-5 max-w-[13ch] text-balance text-display font-semibold text-ink">
               {tenant.tagline}
@@ -244,19 +243,19 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
               </Cta>
             </div>
           </div>
-        </div>
 
-        <ProductImage
-          src={tenant.heroImage}
-          alt=""
-          seed={tenant.name.length * 7919}
-          treatment={treatment}
-          hero
-          priority
-          tint="soft"
-          className="rise rise-2 aspect-[4/3] w-full border-y border-hairline shadow-brand-lift sm:aspect-[16/9] lg:aspect-auto lg:min-h-[34rem] lg:rounded-l-brand-xl lg:border lg:border-r-0"
-          sizes="(max-width: 1024px) 100vw, 56vw"
-        />
+          <ProductImage
+            src={tenant.heroImage}
+            alt=""
+            seed={tenant.name.length * 7919}
+            treatment={treatment}
+            hero
+            priority
+            tint="soft"
+            className="rise rise-2 aspect-[4/3] w-full rounded-brand-xl border border-hairline shadow-brand-lift lg:aspect-[5/4]"
+            sizes="(max-width: 1024px) 100vw, 52vw"
+          />
+        </div>
       </section>
 
       {lead && (

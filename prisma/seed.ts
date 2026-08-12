@@ -45,9 +45,9 @@ const rookRidge = {
   ctaLabel: "See the menu",
   catalogSlug: "menu",
   layoutVariant: "editorial",
-  heroImage: "https://images.unsplash.com/photo-1497515114629-f71d768fd07c",
+  heroImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24",
   bandImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff",
-  cardImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24",
+  cardImage: "https://images.unsplash.com/photo-1497515114629-f71d768fd07c",
   theme: {
     primary: "#4A3428",
     primaryInk: "#FFFFFF",
@@ -293,7 +293,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500",
-      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
+      imageUrl: "/vehicles/fordpickup.png",
       name: "Haulmark 1500",
       blurb: "Half-ton pickup. 3.5L V6, 4x4.",
       description:
@@ -303,7 +303,7 @@ const northaven = {
     },
     {
       slug: "haulmark-2500-hd",
-      imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
+      imageUrl: "/vehicles/ram.jpg",
       name: "Haulmark 2500 HD",
       blurb: "Three-quarter ton. Diesel.",
       description:
@@ -364,7 +364,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500-cpo-2020",
-      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
+      imageUrl: "/vehicles/ram.jpg",
       name: "Haulmark 1500 — Certified, 2020",
       blurb: "112,000 km. Fleet-maintained.",
       description:
