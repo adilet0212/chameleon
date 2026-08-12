@@ -16,12 +16,17 @@ import { test, expect, type Page } from "@playwright/test";
   The isolation specs are the ones that would block a release.
 */
 
+/*
+  Expected values are the hex tokens exactly as stored in the themes table.
+  getComputedStyle on a custom property returns the literal declared value rather
+  than a resolved colour, so these are compared as hex, not as rgb().
+*/
 const BRANDS = [
   {
     slug: "rook-and-ridge",
     name: "Rook & Ridge",
     catalog: "menu",
-    primary: "rgb(74, 52, 40)",
+    primary: "#4a3428",
     ownItem: "ridge-house-espresso",
     ownItemName: "Ridge House Espresso",
   },
@@ -29,7 +34,7 @@ const BRANDS = [
     slug: "northaven",
     name: "Northaven Motors",
     catalog: "inventory",
-    primary: "rgb(27, 42, 61)",
+    primary: "#1b2a3d",
     ownItem: "meridian-ex-sedan",
     ownItemName: "Meridian EX",
   },
@@ -37,18 +42,19 @@ const BRANDS = [
     slug: "foundry",
     name: "Foundry Athletic",
     catalog: "schedule",
-    primary: "rgb(22, 48, 42)",
+    primary: "#16302a",
     ownItem: "barbell-fundamentals",
     ownItemName: "Barbell Fundamentals",
   },
 ] as const;
 
 async function primaryToken(page: Page): Promise<string> {
-  return page.evaluate(() => {
+  const raw = await page.evaluate(() => {
     const scope = document.getElementById("tenant-scope");
     if (!scope) throw new Error("tenant scope element missing");
     return getComputedStyle(scope).getPropertyValue("--t-primary").trim();
   });
+  return raw.toLowerCase();
 }
 
 // ---------------------------------------------------------------------------

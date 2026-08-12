@@ -35,6 +35,7 @@ type SeedProduct = {
 const rookRidge = {
   slug: "rook-and-ridge",
   name: "Rook & Ridge",
+  shortName: "Rook & Ridge",
   tagline: "Coffee roasted in small lots, a short walk from wherever you are.",
   about:
     "We roast in twelve-kilo batches above our Dundas West bar, which means the bag on the shelf was almost certainly roasted this week. Nine locations across Toronto, one roastery, no shortcuts.",
@@ -187,6 +188,7 @@ const rookRidge = {
 const northaven = {
   slug: "northaven",
   name: "Northaven Motors",
+  shortName: "Northaven",
   tagline: "Every vehicle inspected on a 210-point checklist before it is listed.",
   about:
     "A five-location dealer group serving the GTA since 1994. We publish the full inspection report and accident history for every unit on the lot, before you ask for it.",
@@ -339,6 +341,7 @@ const northaven = {
 const foundry = {
   slug: "foundry",
   name: "Foundry Athletic",
+  shortName: "Foundry",
   tagline: "Coached strength training in groups of twelve or fewer.",
   about:
     "Two studios in Toronto. Every session is programmed and coached — no open gym floor, no guessing what to do next, and a hard cap of twelve people per class.",
@@ -543,6 +546,7 @@ async function main() {
       data: {
         slug: t.slug,
         name: t.name,
+        shortName: t.shortName,
         tagline: t.tagline,
         about: t.about,
         itemNoun: t.itemNoun,

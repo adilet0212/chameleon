@@ -6,10 +6,9 @@ import {
   getPage,
   listProducts,
   listCategories,
-  formatPrice,
 } from "@/lib/tenant";
 import { prisma } from "@/lib/prisma";
-import { BrandArt } from "@/components/BrandArt";
+import { ProductCard } from "@/components/ProductCard";
 
 /*
   One route serves two different things, decided by tenant data rather than by the
@@ -107,31 +106,11 @@ export default async function SectionPage({
         >
           {items.map((p) => (
             <li key={p.id}>
-              <Link
+              <ProductCard
+                product={p}
                 href={`/${tenant.slug}/${section}/${p.slug}`}
-                data-testid="catalog-item"
-                className="group flex h-full flex-col overflow-hidden rounded-brand-lg border border-hairline bg-raise transition-shadow hover:shadow-[0_12px_32px_-16px_rgba(0,0,0,0.28)]"
-              >
-                <BrandArt
-                  seed={p.artSeed}
-                  treatment={treatment}
-                  className="aspect-[3/2] w-full"
-                />
-                <div className="flex flex-1 flex-col p-5">
-                  <p className="text-micro font-semibold uppercase tracking-[0.1em] text-accent">
-                    {p.category}
-                  </p>
-                  <h2 className="mt-2 font-display text-heading font-semibold text-ink">
-                    {p.name}
-                  </h2>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
-                    {p.blurb}
-                  </p>
-                  <p className="mt-4 text-sm font-semibold text-ink">
-                    {p.priceCents === 0 ? "Included" : formatPrice(p.priceCents)}
-                  </p>
-                </div>
-              </Link>
+                treatment={treatment}
+              />
             </li>
           ))}
         </ul>

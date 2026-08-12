@@ -5,12 +5,6 @@ const nextConfig: NextConfig = {
   // breaks it. Marking it external keeps the engine loadable on Vercel.
   serverExternalPackages: ["@prisma/client", "prisma"],
 
-  experimental: {
-    // Tenant pages read from Postgres on every request, so the win here is
-    // shipping less JS to the phone rather than caching HTML.
-    optimizePackageImports: ["@prisma/client"],
-  },
-
   async headers() {
     return [
       {

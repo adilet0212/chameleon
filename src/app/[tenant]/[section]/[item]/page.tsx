@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTenant, getProduct, listProducts, formatPrice } from "@/lib/tenant";
 import { BrandArt } from "@/components/BrandArt";
+import { ProductCard } from "@/components/ProductCard";
 
 /*
   Detail page.
@@ -120,23 +121,11 @@ export default async function ItemPage({
           <ul className="mt-6 grid gap-5 sm:grid-cols-3">
             {related.map((p) => (
               <li key={p.id}>
-                <Link
+                <ProductCard
+                  product={p}
                   href={`/${tenant.slug}/${section}/${p.slug}`}
-                  className="flex h-full flex-col overflow-hidden rounded-brand-lg border border-hairline bg-raise transition-shadow hover:shadow-[0_12px_32px_-16px_rgba(0,0,0,0.28)]"
-                >
-                  <BrandArt
-                    seed={p.artSeed}
-                    treatment={treatment}
-                    className="aspect-[3/2] w-full"
-                  />
-                  <div className="flex flex-1 flex-col p-4">
-                    <h3 className="font-display font-semibold text-ink">{p.name}</h3>
-                    <p className="mt-1.5 flex-1 text-sm text-muted">{p.blurb}</p>
-                    <p className="mt-3 text-sm font-semibold text-ink">
-                      {p.priceCents === 0 ? "Included" : formatPrice(p.priceCents)}
-                    </p>
-                  </div>
-                </Link>
+                  treatment={treatment}
+                />
               </li>
             ))}
           </ul>

@@ -27,6 +27,7 @@ import { useEffect, useRef, useTransition } from "react";
 export type SwitcherTenant = {
   slug: string;
   name: string;
+  shortName: string;
   tokens: Record<string, string>;
 };
 
@@ -112,7 +113,10 @@ export function BrandSwitcher({
               onClick={() => switchTo(t)}
               data-testid={`brand-switch-${t.slug}`}
               data-active={active || undefined}
-              className="relative flex-1 rounded-full px-2 py-2.5 text-[0.8125rem] font-medium text-white/55 transition-colors duration-200 hover:text-white/85 data-[active]:text-[#101113] sm:text-sm"
+              // min-w-0 is load-bearing: without it flex items refuse to shrink
+              // below their content and the pill overflows a 375px viewport,
+              // clipping the outer two brand names.
+              className="relative min-w-0 flex-1 rounded-full px-2 py-2.5 text-[0.8125rem] font-medium text-white/55 transition-colors duration-200 hover:text-white/85 data-[active]:text-[#101113] sm:text-sm"
             >
               {active && (
                 <span
@@ -121,13 +125,15 @@ export function BrandSwitcher({
                   style={{ transition: "none" }}
                 />
               )}
-              <span className="relative flex items-center justify-center gap-1.5 truncate">
+              <span className="relative flex items-center justify-center gap-1.5">
                 <span
                   aria-hidden
                   className="size-2 shrink-0 rounded-full ring-1 ring-black/10"
                   style={{ backgroundColor: t.tokens["--t-primary"] }}
                 />
-                {t.name}
+                {/* Short form on phones, full brand name once there is room. */}
+                <span className="truncate sm:hidden">{t.shortName}</span>
+                <span className="hidden truncate sm:inline">{t.name}</span>
               </span>
             </button>
           );

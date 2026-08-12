@@ -29,7 +29,13 @@ export const getTenant = cache(
 
 export const listTenants = cache(async () => {
   return prisma.tenant.findMany({
-    select: { slug: true, name: true, catalogSlug: true, theme: true },
+    select: {
+      slug: true,
+      name: true,
+      shortName: true,
+      catalogSlug: true,
+      theme: true,
+    },
     orderBy: { name: "asc" },
   });
 });

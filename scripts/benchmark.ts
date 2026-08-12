@@ -17,8 +17,10 @@ import { join } from "node:path";
       statistics and may keep its old plan, which would measure nothing.
     - Warm-up iterations are discarded so we are not timing cold caches and first
       connection setup.
-    - EXPLAIN output is captured in both phases. The timing claim is only credible
-      alongside proof that the plan actually changed from Index Scan to Seq Scan.
+    - EXPLAIN output is captured in both phases. A timing claim is only credible
+      alongside proof that the plan actually changed — here, from an Index Scan on
+      the composite key to a Bitmap Heap Scan that narrows by tenant and then
+      discards ~5,000 rows with a filter.
     - p50 and p95 are reported rather than a mean. A mean over network-attached
       Postgres is dominated by tail latency and overstates the typical case.
 
@@ -120,6 +122,44 @@ async function explain(tenantId: string, slug: string): Promise<string> {
   return rows.map((r) => Object.values(r)[0]).join("\n");
 }
 
+/*
+  Server-side execution time.
+
+  The wall-clock numbers above include the round trip from this machine to the
+  database, which for a remote Postgres is tens of milliseconds and swamps the
+  thing we are actually trying to measure. Postgres reports its own execution time
+  inside EXPLAIN ANALYZE — that figure excludes network entirely and is the honest
+  answer to "what did the index change".
+
+  Reported alongside the end-to-end numbers rather than instead of them. One says
+  what the database does, the other says what a request actually pays.
+*/
+async function timeServerSide(
+  pairs: { tenantId: string; slug: string }[],
+  iterations: number,
+): Promise<{ exec: number[]; plan: number[] }> {
+  const exec: number[] = [];
+  const plan: number[] = [];
+  for (let i = 0; i < iterations; i++) {
+    const { tenantId, slug } = pairs[i % pairs.length];
+    const text = await explain(tenantId, slug);
+    const e = text.match(/Execution Time:\s*([\d.]+)\s*ms/);
+    const p = text.match(/Planning Time:\s*([\d.]+)\s*ms/);
+    if (e) exec.push(parseFloat(e[1]));
+    if (p) plan.push(parseFloat(p[1]));
+  }
+  if (exec.length === 0) {
+    throw new Error("Could not parse Execution Time from EXPLAIN output.");
+  }
+  return { exec, plan };
+}
+
+/** First line of a plan, e.g. "Index Scan using ... " — proves the plan changed. */
+function planNode(text: string): string {
+  const first = text.split("\n").find((l) => l.trim().length > 0) ?? "";
+  return first.trim().split("(")[0].trim().replace(/^->\s*/, "");
+}
+
 async function main() {
   const total = await prisma.product.count();
   const tenants = await prisma.tenant.count();
@@ -145,7 +185,12 @@ async function main() {
     (_, i) => sample[i % sample.length],
   );
 
-  const results: Record<string, { raw: Stats; client: Stats; plan: string }> = {};
+  const results: Record<
+    string,
+    { raw: Stats; client: Stats; server: Stats; planning: Stats; plan: string }
+  > = {};
+
+  const SERVER_ITERATIONS = 120;
 
   try {
     // ---- Phase 1: index present -------------------------------------------
@@ -153,10 +198,13 @@ async function main() {
     console.log("Phase 1/2 — with composite index…");
     const withRaw = await timeRaw(pairs);
     const withClient = await timeClient(pairs);
+    const withServer = await timeServerSide(pairs, SERVER_ITERATIONS);
     const withPlan = await explain(pairs[0].tenantId, pairs[0].slug);
     results.withIndex = {
       raw: summarize(withRaw),
       client: summarize(withClient),
+      server: summarize(withServer.exec),
+      planning: summarize(withServer.plan),
       plan: withPlan,
     };
 
@@ -171,10 +219,13 @@ async function main() {
 
     const withoutRaw = await timeRaw(pairs);
     const withoutClient = await timeClient(pairs);
+    const withoutServer = await timeServerSide(pairs, SERVER_ITERATIONS);
     const withoutPlan = await explain(pairs[0].tenantId, pairs[0].slug);
     results.withoutIndex = {
       raw: summarize(withoutRaw),
       client: summarize(withoutClient),
+      server: summarize(withoutServer.exec),
+      planning: summarize(withoutServer.plan),
       plan: withoutPlan,
     };
   } finally {
@@ -191,18 +242,29 @@ async function main() {
   const w = results.withIndex;
   const wo = results.withoutIndex;
 
+  const x = (a: number, b: number) => `${(a / b).toFixed(1)}x`;
+
   const table = [
-    `Rows in table: ${total.toLocaleString()}   Iterations: ${w.raw.n} (after ${WARMUP} warm-up)`,
+    `Rows: ${total.toLocaleString()} · End-to-end iterations: ${w.raw.n} (after ${WARMUP} warm-up) · EXPLAIN samples: ${w.server.n}`,
     "",
-    "Query: SELECT ... FROM products WHERE \"tenantId\" = $1 AND slug = $2",
+    'Query: SELECT id, name, slug, "priceCents" FROM products WHERE "tenantId" = $1 AND slug = $2',
     "",
-    "| Measurement | Without index | With composite index | Change |",
+    "**Server-side execution time** (Postgres `EXPLAIN ANALYZE`, excludes network)",
+    "",
+    "| | Without index | With composite index | Change |",
     "| --- | ---: | ---: | ---: |",
-    `| SQL p50 | ${ms(wo.raw.p50)} ms | ${ms(w.raw.p50)} ms | ${(wo.raw.p50 / w.raw.p50).toFixed(1)}x faster |`,
-    `| SQL p95 | ${ms(wo.raw.p95)} ms | ${ms(w.raw.p95)} ms | ${(wo.raw.p95 / w.raw.p95).toFixed(1)}x faster |`,
-    `| SQL p99 | ${ms(wo.raw.p99)} ms | ${ms(w.raw.p99)} ms | ${(wo.raw.p99 / w.raw.p99).toFixed(1)}x faster |`,
-    `| Prisma p50 | ${ms(wo.client.p50)} ms | ${ms(w.client.p50)} ms | ${(wo.client.p50 / w.client.p50).toFixed(1)}x faster |`,
-    `| Prisma p95 | ${ms(wo.client.p95)} ms | ${ms(w.client.p95)} ms | ${(wo.client.p95 / w.client.p95).toFixed(1)}x faster |`,
+    `| p50 | ${ms(wo.server.p50)} ms | ${ms(w.server.p50)} ms | ${x(wo.server.p50, w.server.p50)} faster |`,
+    `| p95 | ${ms(wo.server.p95)} ms | ${ms(w.server.p95)} ms | ${x(wo.server.p95, w.server.p95)} faster |`,
+    `| plan node | ${planNode(wo.plan)} | ${planNode(w.plan)} | |`,
+    "",
+    "**End-to-end latency** (client in Toronto → Neon us-east-1; includes network round trip)",
+    "",
+    "| | Without index | With composite index | Change |",
+    "| --- | ---: | ---: | ---: |",
+    `| SQL p50 | ${ms(wo.raw.p50)} ms | ${ms(w.raw.p50)} ms | ${x(wo.raw.p50, w.raw.p50)} faster |`,
+    `| SQL p95 | ${ms(wo.raw.p95)} ms | ${ms(w.raw.p95)} ms | ${x(wo.raw.p95, w.raw.p95)} faster |`,
+    `| Prisma p50 | ${ms(wo.client.p50)} ms | ${ms(w.client.p50)} ms | ${x(wo.client.p50, w.client.p50)} faster |`,
+    `| Prisma p95 | ${ms(wo.client.p95)} ms | ${ms(w.client.p95)} ms | ${x(wo.client.p95, w.client.p95)} faster |`,
   ].join("\n");
 
   console.log("\n" + table + "\n");
@@ -217,8 +279,20 @@ async function main() {
     iterations: w.raw.n,
     warmup: WARMUP,
     indexName,
-    withIndex: { raw: w.raw, client: w.client },
-    withoutIndex: { raw: wo.raw, client: wo.client },
+    withIndex: {
+      raw: w.raw,
+      client: w.client,
+      serverExecution: w.server,
+      planning: w.planning,
+      planNode: planNode(w.plan),
+    },
+    withoutIndex: {
+      raw: wo.raw,
+      client: wo.client,
+      serverExecution: wo.server,
+      planning: wo.planning,
+      planNode: planNode(wo.plan),
+    },
     plans: { withIndex: w.plan, withoutIndex: wo.plan },
     markdownTable: table,
   };

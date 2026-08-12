@@ -115,7 +115,9 @@ function Geometric({ seed, hero }: { seed: number; hero: boolean }) {
         const accent = i === shapes - 1;
         const kind = Math.floor(r() * 3);
         const fill = accent ? "var(--t-accent)" : "var(--t-primary)";
-        const opacity = accent ? 0.92 : 0.1 + i * 0.11;
+        // Floor raised from 0.1 — below about 0.18 the brand colour washes out to
+        // a neutral grey and the shapes read as loading skeletons.
+        const opacity = accent ? 0.92 : 0.18 + i * 0.13;
         if (kind === 0) {
           return (
             <rect key={i} x={x} y={y} width={size} height={size} rx={size * 0.5} fill={fill} opacity={opacity} />

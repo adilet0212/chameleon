@@ -25,6 +25,10 @@ model Tenant {
   id        String   @id @default(cuid())
   slug      String   @unique
   name      String
+  // Compact form for space-constrained chrome (the brand switcher on a phone).
+  // Truncating `name` with an ellipsis there looked like a defect; brands know
+  // their own short form, so it is data rather than a string operation.
+  shortName String
   tagline   String
   about     String
   // Each brand names its catalogue differently — "Menu", "Inventory", "Schedule".
@@ -95,8 +99,14 @@ model Product {
 
   // The detail-page lookup is `WHERE tenantId = ? AND slug = ?`. This composite
   // unique both enforces "slug is unique within a brand, not globally" and backs
-  // that lookup with an index. Benchmarked in scripts/benchmark.ts — dropping it
-  // turns the lookup into a sequential scan over the whole product table.
+  // that lookup with an index.
+  //
+  // Benchmarked in scripts/benchmark.ts. Dropping it does not fall back to a
+  // sequential scan — the planner uses the (tenantId, category) index below to
+  // narrow to one tenant, then filters the remaining ~5,000 rows by slug in the
+  // heap. Measured at 18.6x slower on 15k rows even with that fallback available,
+  // which is the more honest comparison: the win is skipping the filter, not
+  // merely avoiding a table scan.
   @@unique([tenantId, slug])
   // Listing pages read `WHERE tenantId = ? ORDER BY featured DESC, createdAt DESC`.
   @@index([tenantId, featured, createdAt])

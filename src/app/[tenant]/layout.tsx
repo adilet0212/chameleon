@@ -48,6 +48,7 @@ export default async function TenantLayout({
   const switcherTenants: SwitcherTenant[] = all.map((t) => ({
     slug: t.slug,
     name: t.name,
+    shortName: t.shortName,
     tokens: themeToCssVars(t.theme) as unknown as Record<string, string>,
   }));
 
