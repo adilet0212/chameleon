@@ -32,14 +32,21 @@ export function themeToCssVars(theme: Theme | null): CSSProperties {
   return {
     "--t-primary": theme.primary,
     "--t-primary-ink": theme.primaryInk,
+    "--t-secondary": theme.secondary,
     "--t-accent": theme.accent,
-    "--t-surface": theme.surface,
-    "--t-surface-raise": theme.surfaceRaise,
     "--t-ink": theme.ink,
     "--t-ink-muted": theme.inkMuted,
+    "--t-surface": theme.surface,
+    "--t-surface-raise": theme.surfaceRaise,
+    "--t-surface-alt": theme.surfaceAlt,
+    "--t-surface-sunken": theme.surfaceSunken,
+    "--t-surface-brand": theme.surfaceBrand,
     "--t-border": theme.border,
+    "--t-border-strong": theme.borderStrong,
+    "--t-shadow": theme.shadowRgb,
     "--t-font-display": fontStack(theme.fontDisplay),
     "--t-font-body": fontStack(theme.fontBody),
+    "--t-display-tracking": theme.displayTracking,
     "--t-radius": theme.radius,
   } as CSSProperties;
 }

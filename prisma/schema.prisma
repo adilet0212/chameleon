@@ -41,6 +41,11 @@ model Tenant {
   // /northaven/inventory, /foundry/schedule. The URL structure itself is tenant
   // data, resolved per request, not a route hardcoded in the filesystem.
   catalogSlug String
+  // Page composition, not just page colour. Selects between the layout arrangements
+  // in src/components/layouts — "editorial" | "dense" | "showcase". A brand that
+  // only differed by palette would not really be a different brand, so structure is
+  // a token like everything else.
+  layoutVariant String
 
   theme     Theme?
   products  Product[]
@@ -61,17 +66,31 @@ model Theme {
   // component layer and the spacing/type system are shared and identical.
   primary      String // hex, brand primary
   primaryInk   String // text colour that meets contrast on `primary`
-  accent       String // hex, used sparingly for emphasis
-  surface      String // page background
-  surfaceRaise String // card / raised surface
+  secondary    String // supporting brand colour, carries large areas
+  accent       String // hex, used sparingly — CTAs, prices, active states, eyebrows
   ink          String // primary body text
   inkMuted     String // secondary text
-  border       String // hairline colour
 
-  fontDisplay String // headings
-  fontBody    String // body copy
-  radius      String // border radius scale root, e.g. "0.25rem"
-  imagery     String // "geometric" | "arc" | "grid" — abstract placeholder treatment
+  // Surface family. Three tints derived from the brand rather than from grey, so
+  // alternating section backgrounds give a page vertical rhythm instead of one
+  // continuous near-white field.
+  surface       String // page background
+  surfaceRaise  String // card / raised surface
+  surfaceAlt    String // alternating band, a step off `surface`
+  surfaceSunken String // deeper band, used for dense sections
+  surfaceBrand  String // strongest brand tint, for feature bands
+
+  border       String // hairline, tinted toward the brand
+  borderStrong String // emphasis border / hover state
+  // "r g b" triplet so shadows can be brand-tinted via rgb(var(--t-shadow) / a)
+  // instead of defaulting to neutral black.
+  shadowRgb    String
+
+  fontDisplay     String // headings
+  fontBody        String // body copy
+  displayTracking String // letter-spacing for large display type, e.g. "-0.03em"
+  radius          String // border radius scale root, e.g. "0.25rem"
+  imagery         String // "geometric" | "arc" | "grid" — placeholder art language
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,6 +110,12 @@ model Product {
   category    String
   priceCents  Int
   featured    Boolean @default(false)
+  // Separates "exists in the table" from "shown to a visitor". The generated tail
+  // has to stay in the table for the index benchmark to mean anything — measuring
+  // a lookup against 36 rows would prove nothing — but it should never reach a
+  // customer-facing page. Every user-facing query filters on this; the benchmark
+  // deliberately does not.
+  isCatalogueVisible Boolean @default(false)
   // Deterministic seed for the generated abstract artwork, so a product's
   // visual identity is stable across renders and deploys.
   artSeed     Int
@@ -108,8 +133,9 @@ model Product {
   // which is the more honest comparison: the win is skipping the filter, not
   // merely avoiding a table scan.
   @@unique([tenantId, slug])
-  // Listing pages read `WHERE tenantId = ? ORDER BY featured DESC, createdAt DESC`.
-  @@index([tenantId, featured, createdAt])
+  // Listing pages read
+  // `WHERE tenantId = ? AND isCatalogueVisible ORDER BY featured DESC, createdAt DESC`.
+  @@index([tenantId, isCatalogueVisible, featured, createdAt])
   @@index([tenantId, category])
   @@map("products")
 }

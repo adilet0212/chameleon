@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-08-12T00:21:15.957Z",
+  "measuredAt": "2026-08-12T02:02:32.670Z",
   "node": "v22.21.0",
   "rowsInTable": 15036,
   "tenants": 3,
@@ -8,85 +8,85 @@
   "indexName": "products_tenantId_slug_key",
   "withIndex": {
     "raw": {
-      "p50": 28.7893,
-      "p95": 31.287,
-      "p99": 32.8156,
-      "min": 25.9255,
-      "max": 40.2597,
-      "mean": 28.971848857142852,
+      "p50": 28.9312,
+      "p95": 31.4905,
+      "p99": 33.2835,
+      "min": 26.4344,
+      "max": 154.9399,
+      "mean": 29.456299714285695,
       "n": 350
     },
     "client": {
-      "p50": 29.0739,
-      "p95": 31.313,
-      "p99": 33.9867,
-      "min": 26.6719,
-      "max": 61.8657,
-      "mean": 29.50030914285714,
+      "p50": 29.5324,
+      "p95": 31.7318,
+      "p99": 34.112,
+      "min": 26.3056,
+      "max": 103.002,
+      "mean": 29.89989885714285,
       "n": 350
     },
     "serverExecution": {
       "p50": 0.042,
-      "p95": 0.047,
-      "p99": 0.1,
-      "min": 0.034,
-      "max": 0.111,
-      "mean": 0.043558333333333296,
+      "p95": 0.052,
+      "p99": 0.075,
+      "min": 0.033,
+      "max": 0.078,
+      "mean": 0.04317499999999997,
       "n": 120
     },
     "planning": {
-      "p50": 0.086,
-      "p95": 0.104,
-      "p99": 0.168,
-      "min": 0.057,
-      "max": 0.615,
-      "mean": 0.09201666666666668,
+      "p50": 0.087,
+      "p95": 0.097,
+      "p99": 0.117,
+      "min": 0.056,
+      "max": 0.151,
+      "mean": 0.087875,
       "n": 120
     },
     "planNode": "Index Scan using \"products_tenantId_slug_key\" on products"
   },
   "withoutIndex": {
     "raw": {
-      "p50": 29.1471,
-      "p95": 32.0163,
-      "p99": 37.2632,
-      "min": 26.2169,
-      "max": 57.3468,
-      "mean": 29.509319142857123,
+      "p50": 29.9943,
+      "p95": 32.4091,
+      "p99": 39.0621,
+      "min": 26.1621,
+      "max": 59.0588,
+      "mean": 30.339105999999997,
       "n": 350
     },
     "client": {
-      "p50": 29.4899,
-      "p95": 33.034,
-      "p99": 36.7284,
-      "min": 26.1728,
-      "max": 56.7191,
-      "mean": 29.933757142857143,
+      "p50": 29.6083,
+      "p95": 31.7535,
+      "p99": 34.3534,
+      "min": 26.2485,
+      "max": 56.9225,
+      "mean": 29.754478000000002,
       "n": 350
     },
     "serverExecution": {
-      "p50": 0.785,
-      "p95": 0.882,
-      "p99": 0.897,
-      "min": 0.718,
-      "max": 0.924,
-      "mean": 0.793325,
+      "p50": 0.773,
+      "p95": 0.961,
+      "p99": 1.163,
+      "min": 0.694,
+      "max": 1.858,
+      "mean": 0.7898666666666672,
       "n": 120
     },
     "planning": {
-      "p50": 0.083,
-      "p95": 0.101,
-      "p99": 0.111,
+      "p50": 0.084,
+      "p95": 0.098,
+      "p99": 0.113,
       "min": 0.058,
-      "max": 0.118,
-      "mean": 0.08487500000000003,
+      "max": 0.121,
+      "mean": 0.08548333333333333,
       "n": 120
     },
     "planNode": "Bitmap Heap Scan on products"
   },
   "plans": {
-    "withIndex": "Index Scan using \"products_tenantId_slug_key\" on products  (cost=0.41..8.43 rows=1 width=72) (actual time=0.022..0.023 rows=1.00 loops=1)\n  Index Cond: ((\"tenantId\" = 'cmspcabjd0000vvnslf5xs6ux'::text) AND (slug = 'archive-cold-2619'::text))\n  Index Searches: 1\n  Buffers: shared hit=4\nPlanning Time: 0.084 ms\nExecution Time: 0.040 ms",
-    "withoutIndex": "Bitmap Heap Scan on products  (cost=81.88..909.06 rows=1 width=72) (actual time=0.455..0.720 rows=1.00 loops=1)\n  Recheck Cond: (\"tenantId\" = 'cmspcabjd0000vvnslf5xs6ux'::text)\n  Filter: (slug = 'archive-cold-2619'::text)\n  Rows Removed by Filter: 5011\n  Heap Blocks: exact=251\n  Buffers: shared hit=257\n  ->  Bitmap Index Scan on \"products_tenantId_category_idx\"  (cost=0.00..81.88 rows=5012 width=0) (actual time=0.109..0.109 rows=5012.00 loops=1)\n        Index Cond: (\"tenantId\" = 'cmspcabjd0000vvnslf5xs6ux'::text)\n        Index Searches: 1\n        Buffers: shared hit=6\nPlanning Time: 0.082 ms\nExecution Time: 0.741 ms"
+    "withIndex": "Index Scan using \"products_tenantId_slug_key\" on products  (cost=0.41..8.43 rows=1 width=72) (actual time=0.023..0.024 rows=1.00 loops=1)\n  Index Cond: ((\"tenantId\" = 'cmspfx97p07qmvv6wdvy94gy4'::text) AND (slug = 'archive-cycle-2564'::text))\n  Index Searches: 1\n  Buffers: shared hit=4\nPlanning Time: 0.085 ms\nExecution Time: 0.043 ms",
+    "withoutIndex": "Bitmap Heap Scan on products  (cost=81.88..1660.06 rows=1 width=72) (actual time=0.452..0.736 rows=1.00 loops=1)\n  Recheck Cond: (\"tenantId\" = 'cmspfx97p07qmvv6wdvy94gy4'::text)\n  Filter: (slug = 'archive-cycle-2564'::text)\n  Rows Removed by Filter: 5011\n  Heap Blocks: exact=252\n  Buffers: shared hit=258\n  ->  Bitmap Index Scan on \"products_tenantId_category_idx\"  (cost=0.00..81.88 rows=5012 width=0) (actual time=0.110..0.111 rows=5012.00 loops=1)\n        Index Cond: (\"tenantId\" = 'cmspfx97p07qmvv6wdvy94gy4'::text)\n        Index Searches: 1\n        Buffers: shared hit=6\nPlanning Time: 0.083 ms\nExecution Time: 0.757 ms"
   },
-  "markdownTable": "Rows: 15,036 · End-to-end iterations: 350 (after 50 warm-up) · EXPLAIN samples: 120\n\nQuery: SELECT id, name, slug, \"priceCents\" FROM products WHERE \"tenantId\" = $1 AND slug = $2\n\n**Server-side execution time** (Postgres `EXPLAIN ANALYZE`, excludes network)\n\n| | Without index | With composite index | Change |\n| --- | ---: | ---: | ---: |\n| p50 | 0.785 ms | 0.042 ms | 18.7x faster |\n| p95 | 0.882 ms | 0.047 ms | 18.8x faster |\n| plan node | Bitmap Heap Scan on products | Index Scan using \"products_tenantId_slug_key\" on products | |\n\n**End-to-end latency** (client in Toronto → Neon us-east-1; includes network round trip)\n\n| | Without index | With composite index | Change |\n| --- | ---: | ---: | ---: |\n| SQL p50 | 29.147 ms | 28.789 ms | 1.0x faster |\n| SQL p95 | 32.016 ms | 31.287 ms | 1.0x faster |\n| Prisma p50 | 29.490 ms | 29.074 ms | 1.0x faster |\n| Prisma p95 | 33.034 ms | 31.313 ms | 1.1x faster |"
+  "markdownTable": "Rows: 15,036 · End-to-end iterations: 350 (after 50 warm-up) · EXPLAIN samples: 120\n\nQuery: SELECT id, name, slug, \"priceCents\" FROM products WHERE \"tenantId\" = $1 AND slug = $2\n\n**Server-side execution time** (Postgres `EXPLAIN ANALYZE`, excludes network)\n\n| | Without index | With composite index | Change |\n| --- | ---: | ---: | ---: |\n| p50 | 0.773 ms | 0.042 ms | 18.4x faster |\n| p95 | 0.961 ms | 0.052 ms | 18.5x faster |\n| plan node | Bitmap Heap Scan on products | Index Scan using \"products_tenantId_slug_key\" on products | |\n\n**End-to-end latency** (client in Toronto → Neon us-east-1; includes network round trip)\n\n| | Without index | With composite index | Change |\n| --- | ---: | ---: | ---: |\n| SQL p50 | 29.994 ms | 28.931 ms | 1.0x faster |\n| SQL p95 | 32.409 ms | 31.491 ms | 1.0x faster |\n| Prisma p50 | 29.608 ms | 29.532 ms | 1.0x faster |\n| Prisma p95 | 31.753 ms | 31.732 ms | 1.0x faster |"
 }

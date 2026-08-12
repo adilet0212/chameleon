@@ -9,66 +9,80 @@
   below reads from those properties, so a new brand is a database row and never a
   code change.
 
-  The structural decisions — spacing rhythm, type scale, line lengths, border
-  weights — are shared and fixed. That is what keeps three different brands looking
-  like they came out of the same studio.
+  The structural decisions — spacing rhythm, type scale, line lengths, focus
+  treatment — are shared and fixed. That is what keeps three different brands
+  looking like they came out of the same studio.
 */
 
 @theme inline {
   /* Brand-controlled. Every value here is supplied per tenant from Postgres. */
   --color-primary: var(--t-primary);
   --color-primary-ink: var(--t-primary-ink);
+  --color-secondary: var(--t-secondary);
   --color-accent: var(--t-accent);
-  --color-surface: var(--t-surface);
-  --color-raise: var(--t-surface-raise);
   --color-ink: var(--t-ink);
   --color-muted: var(--t-ink-muted);
+
+  --color-surface: var(--t-surface);
+  --color-raise: var(--t-surface-raise);
+  --color-alt: var(--t-surface-alt);
+  --color-sunken: var(--t-surface-sunken);
+  --color-brandtint: var(--t-surface-brand);
+
   --color-hairline: var(--t-border);
+  --color-hairline-strong: var(--t-border-strong);
 
   --font-display: var(--t-font-display);
   --font-body: var(--t-font-body);
 
   --radius-brand: var(--t-radius);
   --radius-brand-lg: calc(var(--t-radius) * 1.75);
+  --radius-brand-xl: calc(var(--t-radius) * 2.5);
 
   /* Shared, not brand-controlled. The type scale is fluid so the phone case and
      the desktop case are the same design rather than two tunings of one. */
-  --text-display: clamp(2.25rem, 1.6rem + 3.2vw, 4.5rem);
-  --text-display--line-height: 1.04;
-  --text-display--letter-spacing: -0.03em;
+  --text-hero: clamp(2.6rem, 1.7rem + 4.4vw, 5.5rem);
+  --text-hero--line-height: 1.02;
 
-  --text-title: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem);
-  --text-title--line-height: 1.12;
-  --text-title--letter-spacing: -0.02em;
+  --text-display: clamp(2.15rem, 1.55rem + 3vw, 4.25rem);
+  --text-display--line-height: 1.05;
 
-  --text-heading: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
-  --text-heading--line-height: 1.25;
-  --text-heading--letter-spacing: -0.01em;
+  --text-title: clamp(1.7rem, 1.3rem + 1.7vw, 2.6rem);
+  --text-title--line-height: 1.14;
 
-  --text-lede: clamp(1.05rem, 1rem + 0.35vw, 1.25rem);
-  --text-lede--line-height: 1.6;
+  --text-heading: clamp(1.2rem, 1.08rem + 0.6vw, 1.55rem);
+  --text-heading--line-height: 1.26;
+
+  --text-lede: clamp(1.03rem, 0.99rem + 0.32vw, 1.22rem);
+  --text-lede--line-height: 1.62;
 
   --text-micro: 0.75rem;
   --text-micro--line-height: 1.4;
-  --text-micro--letter-spacing: 0.08em;
+  --text-micro--letter-spacing: 0.09em;
 }
 
 /*
-  Default token values. These are the neutral fallback used by the project's own
-  chrome (the index page, the 404) where no tenant is in scope. A tenant wrapper
-  overrides all of them inline.
+  Default token values, used by the project's own chrome (the index page, the 404)
+  where no tenant is in scope. A tenant wrapper overrides all of them inline.
 */
 :root {
   --t-primary: #1e1e1e;
   --t-primary-ink: #ffffff;
+  --t-secondary: #3d3d3d;
   --t-accent: #4b4b4b;
-  --t-surface: #fbfbfa;
-  --t-surface-raise: #ffffff;
   --t-ink: #16181a;
   --t-ink-muted: #6a7075;
+  --t-surface: #fbfbfa;
+  --t-surface-raise: #ffffff;
+  --t-surface-alt: #f4f4f2;
+  --t-surface-sunken: #ebebe8;
+  --t-surface-brand: #e2e2df;
   --t-border: #e4e5e7;
+  --t-border-strong: #c9cbce;
+  --t-shadow: 20 22 24;
   --t-font-display: var(--font-inter), system-ui, sans-serif;
   --t-font-body: var(--font-inter), system-ui, sans-serif;
+  --t-display-tracking: -0.03em;
   --t-radius: 0.5rem;
 }
 
@@ -84,6 +98,23 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Large display type carries a per-brand tracking value — a geometric sans and a
+   soft serif want visibly different letter-spacing at 4rem. */
+.display-type {
+  font-family: var(--t-font-display);
+  letter-spacing: var(--t-display-tracking);
+}
+
+/* Brand-tinted elevation. Neutral black shadows read as dirt on a warm surface. */
+.shadow-brand {
+  box-shadow: 0 1px 2px rgb(var(--t-shadow) / 0.04);
+}
+.shadow-brand-lift {
+  box-shadow:
+    0 2px 4px rgb(var(--t-shadow) / 0.05),
+    0 12px 28px -12px rgb(var(--t-shadow) / 0.22);
+}
+
 /*
   Tenant re-skin transition.
 
@@ -93,28 +124,80 @@ body {
 */
 .tenant-scope {
   transition:
-    background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .tenant-scope *,
 .tenant-scope *::before,
 .tenant-scope *::after {
   transition:
-    background-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    fill 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    stroke 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    fill 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Card interactions are faster than the brand crossfade and must not inherit its
+   easing, or hover feels sluggish. */
+.card-i {
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .card-i:hover {
+    transform: translateY(-3px);
+  }
+  .card-i:hover .card-art {
+    transform: scale(1.045);
+  }
+}
+.card-art {
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/*
+  Entrance animation. Deliberately small — an 8px rise and a fade, once, on first
+  paint. Anything larger reads as a template. Pure CSS with a stagger delay rather
+  than an observer, so it costs no JavaScript on a phone.
+*/
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rise-1 { animation-delay: 60ms; }
+.rise-2 { animation-delay: 120ms; }
+.rise-3 { animation-delay: 180ms; }
+.rise-4 { animation-delay: 240ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .tenant-scope,
   .tenant-scope *,
   .tenant-scope *::before,
-  .tenant-scope *::after {
+  .tenant-scope *::after,
+  .rise,
+  .card-i,
+  .card-art {
     transition-duration: 1ms !important;
     animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+  @media (hover: hover) {
+    .card-i:hover { transform: none; }
+    .card-i:hover .card-art { transform: none; }
   }
 }
 
@@ -128,4 +211,12 @@ body {
 ::selection {
   background-color: var(--t-accent);
   color: var(--t-primary-ink);
+}
+
+/* Horizontal scrollers (category filters) hide their bar but stay swipeable. */
+.no-bar {
+  scrollbar-width: none;
+}
+.no-bar::-webkit-scrollbar {
+  display: none;
 }

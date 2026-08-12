@@ -34,7 +34,7 @@ const BRANDS = [
     slug: "northaven",
     name: "Northaven Motors",
     catalog: "inventory",
-    primary: "#1b2a3d",
+    primary: "#16263a",
     ownItem: "meridian-ex-sedan",
     ownItemName: "Meridian EX",
   },
@@ -42,7 +42,7 @@ const BRANDS = [
     slug: "foundry",
     name: "Foundry Athletic",
     catalog: "schedule",
-    primary: "#16302a",
+    primary: "#12291f",
     ownItem: "barbell-fundamentals",
     ownItemName: "Barbell Fundamentals",
   },
@@ -172,5 +172,25 @@ test("the brand switcher re-themes the application", async ({ page }) => {
 // ---------------------------------------------------------------------------
 test("an unknown brand 404s", async ({ page }) => {
   const res = await page.goto("/not-a-real-brand");
+  expect(res?.status()).toBe(404);
+});
+
+// ---------------------------------------------------------------------------
+// 7. Benchmark rows exist in the table but never reach a customer-facing page.
+// ---------------------------------------------------------------------------
+test("generated benchmark rows are never merchandised", async ({ page }) => {
+  for (const brand of BRANDS) {
+    await page.goto(`/${brand.slug}/${brand.catalog}`);
+    const grid = await page.getByTestId("catalog-grid").innerText();
+
+    // The generated tail is all named "<Category> Archive <n>".
+    expect(
+      grid,
+      `${brand.name}'s catalogue is showing generated benchmark rows`,
+    ).not.toMatch(/Archive \d+/);
+  }
+
+  // And they are not addressable directly either, even though the row exists.
+  const res = await page.goto("/rook-and-ridge/menu/archive-espresso-1");
   expect(res?.status()).toBe(404);
 });

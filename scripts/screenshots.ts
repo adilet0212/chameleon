@@ -24,7 +24,12 @@ async function main() {
   mkdirSync(OUT, { recursive: true });
   const browser = await chromium.launch();
 
-  const phone = await browser.newContext({ ...devices["Pixel 7"] });
+  const phone = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
   for (const s of SHOTS) {
     const page = await phone.newPage();
     await page.goto(BASE + s.path, { waitUntil: "load" });
