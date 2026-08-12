@@ -49,6 +49,14 @@ Tailwind v4's `@theme inline` maps its utilities onto those properties, so every
 
 The structural design decisions — spacing rhythm, type scale, line lengths, focus treatment — are shared and fixed. That is deliberate, and it is why three different brands still look like they came out of the same studio rather than three different template purchases.
 
+### Photography
+
+Every merchandised item, plus each tenant's hero and one mid-page band, carries a free-licence photograph stored as a field on the row — so imagery is data like everything else, with no per-brand conditional in any component. Products without one fall back to the generated artwork: the 15,000 benchmark rows have no photography, and a brand onboarded before its assets arrive should still render something on-brand rather than a broken image.
+
+Each photograph carries a low-opacity multiply wash of the tenant's own primary. That is what stops three sets of free-licence stock from reading as three sets of free-licence stock — it pulls every image in a storefront toward that brand's palette, and it costs no per-brand code because it reads the same token as everything else.
+
+Images are served through `next/image` (AVIF/WebP, per-breakpoint `sizes`, lazy below the fold) inside fixed-aspect wrappers that reserve the box before load. CLS is 0.
+
 ### Composition is a token too
 
 Colour alone does not make two storefronts feel like different brands. If every client gets the same skeleton with a new palette, it reads as a theme switcher rather than a platform — so `tenant.layoutVariant` selects between three arrangements:
@@ -141,35 +149,37 @@ Raw output, including all percentiles and both full query plans: [`benchmark-res
 
 ## Lighthouse
 
-Run against the deployed build at `https://chameleon-gray.vercel.app/rook-and-ridge`, mobile form factor, simulated throttling. Lighthouse 12.8.2.
+Mobile form factor, simulated throttling, run against the deployed build. Lighthouse 12.8.2. Two tenants measured because the layout variants differ enough to score differently.
 
-| Category | Score |
-| --- | ---: |
-| Performance | **88** |
-| Accessibility | **100** |
-| Best Practices | **100** |
-| SEO | **100** |
+| | Foundry (`showcase`) | Rook & Ridge (`editorial`) |
+| --- | ---: | ---: |
+| Performance | **85** | **77** |
+| Accessibility | **100** | **100** |
+| Best Practices | **100** | **100** |
+| SEO | **100** | **100** |
+| LCP | 3.5 s | 3.5 s |
+| Total Blocking Time | 270 ms | 530 ms |
+| Cumulative Layout Shift | **0** | **0** |
 
-| Metric | |
-| --- | ---: |
-| First Contentful Paint | 1.1 s |
-| Largest Contentful Paint | 3.1 s |
-| Total Blocking Time | 260 ms |
-| Cumulative Layout Shift | 0 |
+CLS is 0 on both, which is the number I care most about here: every image sits in a fixed-aspect wrapper that reserves its box before the photograph arrives, so nothing moves as the page fills in.
 
-Performance is 88, not the 95 I was aiming for, and the honest reason is font loading: five families are loaded at the root so switching brands never triggers a font request, which costs first paint on a cold mobile connection. That is a deliberate trade — the brand switch is the thing being demonstrated, and a flash of unstyled text mid-switch would undercut it. Subsetting the faces, or loading only the active brand's pair and prefetching the others at idle, is the obvious next move.
+Performance is 77–85, short of the 95 I was aiming for. The honest causes, in order of size:
 
-The first run of this scored **74 / 96**, and the gap was three defects worth naming because they were mine:
+1. **Five font families load at the root** so switching brands never triggers a font request. That is a deliberate trade for the thing being demonstrated — a flash of unstyled text mid-switch would undercut the whole demo — but it costs first paint. Loading only the active brand's pair and prefetching the rest at idle is the obvious fix.
+2. **LCP is a photograph.** Real imagery was the point of this pass, and it moved LCP from 3.1 s to 3.5 s. Served as AVIF/WebP through `next/image` at per-breakpoint sizes, hero images marked `priority`, everything below the fold lazy.
+3. Editorial scores lower than showcase because its hero renders a photograph *and* a large serif display face above the fold.
 
-- **Contrast.** The accent is chosen for presence on a CTA fill; at 12px on a light surface it measured 3.4–4.0:1 against WCAG AA's 4.5:1. Rather than compromise the palette, small text now uses a separate `accentInk` token, verified ≥4.5:1 against every surface tint in every brand.
-- **The re-skin transition applied to every descendant** — including the ~100 shape nodes inside each generated SVG. At a dozen cards that is over a thousand elements carrying transition rules, and it dominated style recalculation at 621 ms. SVG internals are excluded now and the artwork recolours instantly beneath the surrounding fade, which is imperceptible in motion.
-- **The switcher prefetched both other tenants on mount**, pulling and parsing two full RSC payloads while the page was still becoming interactive. Deferred to `requestIdleCallback`. Total Blocking Time went 650 ms → 260 ms.
+Three defects that earlier runs caught, all mine, all fixed and re-measured:
 
-Raw report: [`docs/lighthouse-mobile.json`](docs/lighthouse-mobile.json).
+- **Accent text failed WCAG AA** at 3.4–4.0:1. Small text now uses a separate `accentInk` token, each value verified ≥4.5:1 against every surface tint. A later run caught the same failure on accent-*filled* CTAs — white on `#E2542A` measured 3.79:1 — so those use `accentInk` too, at 5.18:1.
+- **The re-skin transition applied to every descendant**, including ~100 SVG nodes per card, dominating style recalculation at 621 ms. SVG internals excluded.
+- **The switcher prefetched both other tenants on mount**, parsing two RSC payloads during load. Deferred to `requestIdleCallback`. TBT 650 ms → 270 ms.
+
+Raw reports: [`docs/lighthouse-mobile.json`](docs/lighthouse-mobile.json), [`docs/lighthouse-mobile-rook.json`](docs/lighthouse-mobile-rook.json).
 
 ## Testing
 
-Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total. Mobile is not an afterthought here; half of what this project is for is the phone case.
+Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total, all passing. Mobile is not an afterthought here; half of what this project is for is the phone case.
 
 | Spec | Asserts |
 | --- | --- |
