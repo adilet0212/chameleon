@@ -101,8 +101,8 @@ Postgres' own `Execution Time` from `EXPLAIN ANALYZE` — excludes network entir
 
 | | Without index | With composite index | Change |
 | --- | ---: | ---: | ---: |
-| p50 | 0.773 ms | 0.042 ms | **18.4x faster** |
-| p95 | 0.961 ms | 0.052 ms | **18.5x faster** |
+| p50 | 0.789 ms | 0.042 ms | **18.8x faster** |
+| p95 | 0.847 ms | 0.055 ms | **15.4x faster** |
 
 ### End-to-end latency
 
@@ -110,13 +110,13 @@ Same query, measured from the client. Included because it is the honest picture 
 
 | | Without index | With composite index | Change |
 | --- | ---: | ---: | ---: |
-| SQL p50 | 29.994 ms | 28.931 ms | 1.0x |
-| SQL p95 | 32.409 ms | 31.491 ms | 1.0x |
-| Prisma p50 | 29.608 ms | 29.532 ms | 1.0x |
+| SQL p50 | 29.280 ms | 29.276 ms | 1.0x |
+| SQL p95 | 32.108 ms | 31.102 ms | 1.0x |
+| Prisma p50 | 30.165 ms | 29.706 ms | 1.0x |
 
-**The end-to-end numbers barely move, and that is not a disappointing result — it is the finding.** Measured from Toronto against `us-east-1`, roughly 28 ms of every request is network round trip. A 0.73 ms saving inside the database disappears into it. The index is unambiguously the right call and it is 18x faster at the thing it does; at this table size, on this link, the network is simply the larger cost. Deployed on Vercel in the same region as the database, the round trip mostly goes away and the server-side number is what remains.
+**The end-to-end numbers barely move, and that is not a disappointing result — it is the finding.** Measured from Toronto against `us-east-1`, roughly 28 ms of every request is network round trip. A 0.75 ms saving inside the database disappears into it. The index is unambiguously the right call and it is 18x faster at the thing it does; at this table size, on this link, the network is simply the larger cost. Deployed on Vercel in the same region as the database, the round trip mostly goes away and the server-side number is what remains.
 
-Reporting only the 18.4x would have been misleading. Reporting only the 1.0x would have been wrong. Both are here.
+Reporting only the 18.8x would have been misleading. Reporting only the 1.0x would have been wrong. Both are here.
 
 ### Why it is a Bitmap Heap Scan and not a Seq Scan
 
@@ -144,6 +144,8 @@ Execution Time: 0.040 ms
 `Rows Removed by Filter: 5011` is the whole story: 258 buffers touched and 5,011 rows examined and thrown away, versus 4 buffers and a direct lookup. This is the more honest comparison than "index vs. no index at all" — even with a partially useful index available, the composite key is 18x better, because it eliminates the filter step rather than merely avoiding a scan.
 
 The benchmark restores the index in a `finally` block. It backs a unique constraint, so an interrupted run must not leave the table without it.
+
+Across repeated runs the server-side p50 ratio lands between 18x and 19x; the figures above are from the committed run.
 
 Raw output, including all percentiles and both full query plans: [`benchmark-results.json`](benchmark-results.json).
 
