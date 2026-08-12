@@ -221,8 +221,8 @@ const northaven = {
   ctaLabel: "Browse inventory",
   catalogSlug: "inventory",
   layoutVariant: "dense",
-  heroImage: "https://images.unsplash.com/photo-1567818735868-e71b99932e29",
-  bandImage: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+  heroImage: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
+  bandImage: "https://images.unsplash.com/photo-1567818735868-e71b99932e29",
   theme: {
     primary: "#16263A",
     primaryInk: "#FFFFFF",
@@ -249,7 +249,7 @@ const northaven = {
   products: [
     {
       slug: "meridian-ex-sedan",
-      imageUrl: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
+      imageUrl: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
       name: "Meridian EX",
       blurb: "Mid-size sedan. 2.0L turbo, front-wheel drive.",
       description:
