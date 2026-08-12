@@ -139,6 +139,34 @@ The benchmark restores the index in a `finally` block. It backs a unique constra
 
 Raw output, including all percentiles and both full query plans: [`benchmark-results.json`](benchmark-results.json).
 
+## Lighthouse
+
+Run against the deployed build at `https://chameleon-gray.vercel.app/rook-and-ridge`, mobile form factor, simulated throttling. Lighthouse 12.8.2.
+
+| Category | Score |
+| --- | ---: |
+| Performance | **88** |
+| Accessibility | **100** |
+| Best Practices | **100** |
+| SEO | **100** |
+
+| Metric | |
+| --- | ---: |
+| First Contentful Paint | 1.1 s |
+| Largest Contentful Paint | 3.1 s |
+| Total Blocking Time | 260 ms |
+| Cumulative Layout Shift | 0 |
+
+Performance is 88, not the 95 I was aiming for, and the honest reason is font loading: five families are loaded at the root so switching brands never triggers a font request, which costs first paint on a cold mobile connection. That is a deliberate trade — the brand switch is the thing being demonstrated, and a flash of unstyled text mid-switch would undercut it. Subsetting the faces, or loading only the active brand's pair and prefetching the others at idle, is the obvious next move.
+
+The first run of this scored **74 / 96**, and the gap was three defects worth naming because they were mine:
+
+- **Contrast.** The accent is chosen for presence on a CTA fill; at 12px on a light surface it measured 3.4–4.0:1 against WCAG AA's 4.5:1. Rather than compromise the palette, small text now uses a separate `accentInk` token, verified ≥4.5:1 against every surface tint in every brand.
+- **The re-skin transition applied to every descendant** — including the ~100 shape nodes inside each generated SVG. At a dozen cards that is over a thousand elements carrying transition rules, and it dominated style recalculation at 621 ms. SVG internals are excluded now and the artwork recolours instantly beneath the surrounding fade, which is imperceptible in motion.
+- **The switcher prefetched both other tenants on mount**, pulling and parsing two full RSC payloads while the page was still becoming interactive. Deferred to `requestIdleCallback`. Total Blocking Time went 650 ms → 260 ms.
+
+Raw report: [`docs/lighthouse-mobile.json`](docs/lighthouse-mobile.json).
+
 ## Testing
 
 Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total. Mobile is not an afterthought here; half of what this project is for is the phone case.
