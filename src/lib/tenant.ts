@@ -46,6 +46,7 @@ export const listTenants = cache(async () => {
       catalogSlug: true,
       itemNoun: true,
       layoutVariant: true,
+      cardImage: true,
       theme: true,
     },
     orderBy: { name: "asc" },

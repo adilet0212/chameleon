@@ -45,8 +45,9 @@ const rookRidge = {
   ctaLabel: "See the menu",
   catalogSlug: "menu",
   layoutVariant: "editorial",
-  heroImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24",
+  heroImage: "https://images.unsplash.com/photo-1497515114629-f71d768fd07c",
   bandImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff",
+  cardImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24",
   theme: {
     primary: "#4A3428",
     primaryInk: "#FFFFFF",
@@ -221,8 +222,9 @@ const northaven = {
   ctaLabel: "Browse inventory",
   catalogSlug: "inventory",
   layoutVariant: "dense",
-  heroImage: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
+  heroImage: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7",
   bandImage: "https://images.unsplash.com/photo-1567818735868-e71b99932e29",
+  cardImage: "https://images.unsplash.com/photo-1580273916550-e323be2ae537",
   theme: {
     primary: "#16263A",
     primaryInk: "#FFFFFF",
@@ -249,7 +251,7 @@ const northaven = {
   products: [
     {
       slug: "meridian-ex-sedan",
-      imageUrl: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+      imageUrl: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
       name: "Meridian EX",
       blurb: "Mid-size sedan. 2.0L turbo, front-wheel drive.",
       description:
@@ -399,6 +401,7 @@ const foundry = {
   layoutVariant: "showcase",
   heroImage: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f",
   bandImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
+  cardImage: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48",
   theme: {
     primary: "#12291F",
     primaryInk: "#FFFFFF",
@@ -626,6 +629,7 @@ async function main() {
         catalogSlug: t.catalogSlug,
         layoutVariant: t.layoutVariant,
         heroImage: t.heroImage,
+        cardImage: t.cardImage,
         bandImage: t.bandImage,
         theme: { create: t.theme },
         pages: { create: t.pages },

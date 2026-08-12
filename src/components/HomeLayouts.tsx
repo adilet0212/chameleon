@@ -52,9 +52,23 @@ function Backdrop({
   overlay = "hero",
 }: {
   src: string | null;
-  overlay?: "hero" | "band";
+  overlay?: "hero" | "band" | "cinematic";
 }) {
   if (!src) return null;
+
+  // "cinematic" grades from near-opaque at the bottom-left, where the headline
+  // and stat bar sit, to mostly clear at the top right, so the photograph still
+  // reads as a photograph. Tuned by looking at it: the first pass was heavy
+  // enough that the showroom flattened into a plain navy field. The source
+  // photograph is already dark, which is what leaves room to pull the wash back
+  // without losing contrast under the text.
+  const wash =
+    overlay === "cinematic"
+      ? "bg-gradient-to-tr from-primary/95 via-primary/70 to-primary/25"
+      : overlay === "hero"
+        ? "bg-primary opacity-[0.82]"
+        : "bg-primary opacity-[0.9]";
+
   return (
     <>
       <Image
@@ -62,17 +76,24 @@ function Backdrop({
         alt=""
         aria-hidden
         fill
-        priority={overlay === "hero"}
+        priority
         sizes="100vw"
         className="-z-20 object-cover"
       />
-      <span
-        aria-hidden
-        className={`absolute inset-0 -z-10 bg-primary ${overlay === "hero" ? "opacity-[0.82]" : "opacity-[0.9]"}`}
-      />
+      <span aria-hidden className={`absolute inset-0 -z-10 ${wash}`} />
+      {overlay === "cinematic" && (
+        // Second, vertical scrim. On a 390px screen the headline occupies most
+        // of the frame, and the diagonal grade alone left the top of the text
+        // sitting on the brightest part of the photograph.
+        <span
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-primary via-primary/35 to-transparent"
+        />
+      )}
     </>
   );
 }
+
 
 function Cta({
   href,
@@ -81,7 +102,7 @@ function Cta({
 }: {
   href: string;
   children: React.ReactNode;
-  tone?: "primary" | "accent" | "outline" | "onDark";
+  tone?: "primary" | "accent" | "outline" | "onDark" | "ghostOnDark";
 }) {
   const tones = {
     primary: "bg-primary text-primary-ink hover:opacity-90",
@@ -90,6 +111,10 @@ function Cta({
     accent: "bg-accent-ink text-primary-ink hover:opacity-90",
     outline: "border border-hairline-strong text-ink hover:bg-alt",
     onDark: "bg-primary-ink text-primary hover:opacity-90",
+    // Outlined on a photograph: a solid light fill twice in a row flattened the
+    // hierarchy between the primary and secondary action.
+    ghostOnDark:
+      "border border-white/35 text-primary-ink backdrop-blur-sm hover:bg-white/10",
   };
   return (
     <Link
@@ -171,7 +196,7 @@ function CategoryTiles({
               aria-hidden
               className="shrink-0 text-lg text-muted transition-transform group-hover:translate-x-0.5"
             >
-              →
+              &rarr;
             </span>
           </Link>
         </li>
@@ -189,14 +214,27 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
 
   return (
     <>
-      <section className="mx-auto w-full max-w-6xl px-5 pb-16 pt-14 sm:px-8 sm:pb-24 sm:pt-24">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-20">
-          <div className="rise">
+      {/*
+        Asymmetric by construction. The photograph runs to the right edge of the
+        viewport and is taller than the text column, so it reads as an editorial
+        spread rather than an image inset beside a paragraph.
+
+        This is a two-column grid rather than an absolutely positioned image: at
+        56vw the absolute version overlapped the centred text container and
+        clipped the headline. A grid track cannot overlap its sibling, so the
+        failure is structurally impossible rather than tuned around.
+
+        The left padding reproduces where `max-w-6xl mx-auto` would put the
+        container edge, so the copy still lines up with every section below it.
+      */}
+      <section className="lg:grid lg:grid-cols-[minmax(0,1fr)_56%] lg:items-stretch">
+        <div className="px-5 pb-12 pt-12 sm:px-8 sm:pt-16 lg:py-24 lg:pl-[max(2rem,calc((100vw-72rem)/2))] lg:pr-12">
+          <div className="rise lg:max-w-[34rem]">
             <Eyebrow>{tenant.name}</Eyebrow>
-            <h1 className="display-type mt-5 max-w-[14ch] text-balance text-display font-semibold text-ink">
+            <h1 className="display-type mt-5 max-w-[13ch] text-balance text-display font-semibold text-ink">
               {tenant.tagline}
             </h1>
-            <p className="mt-7 max-w-[46ch] text-pretty text-lede text-muted">
+            <p className="mt-7 max-w-[42ch] text-pretty text-lede text-muted">
               {tenant.about}
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
@@ -206,18 +244,19 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
               </Cta>
             </div>
           </div>
-          <ProductImage
-            src={tenant.heroImage}
-            alt=""
-            seed={tenant.name.length * 7919}
-            treatment={treatment}
-            hero
-            priority
-            tint="soft"
-            className="rise rise-2 aspect-[5/4] w-full rounded-brand-xl border border-hairline shadow-brand-lift"
-            sizes="(max-width: 1024px) 100vw, 45vw"
-          />
         </div>
+
+        <ProductImage
+          src={tenant.heroImage}
+          alt=""
+          seed={tenant.name.length * 7919}
+          treatment={treatment}
+          hero
+          priority
+          tint="soft"
+          className="rise rise-2 aspect-[4/3] w-full border-y border-hairline shadow-brand-lift sm:aspect-[16/9] lg:aspect-auto lg:min-h-[34rem] lg:rounded-l-brand-xl lg:border lg:border-r-0"
+          sizes="(max-width: 1024px) 100vw, 56vw"
+        />
       </section>
 
       {lead && (
@@ -280,50 +319,60 @@ function Editorial({ tenant, featured, categories, totalVisible }: Props) {
 function Dense({ tenant, featured, categories, totalVisible }: Props) {
   const treatment = tenant.theme?.imagery ?? "grid";
 
+  const stats: [string, string][] = [
+    [totalVisible.toString(), "Listed now"],
+    [categories.length.toString(), "Categories"],
+    ["210", "Point inspection"],
+    ["5", "Locations"],
+  ];
+
   return (
     <>
-      <section className="border-b border-hairline bg-alt">
-        <div className="mx-auto w-full max-w-6xl px-5 py-11 sm:px-8 sm:py-16">
-          <div className="rise grid gap-7 lg:grid-cols-[1.4fr_1fr] lg:items-center lg:gap-14">
-            <div>
-              <Eyebrow>{tenant.name}</Eyebrow>
-              <h1 className="display-type mt-4 max-w-[20ch] text-balance text-title font-semibold text-ink">
-                {tenant.tagline}
-              </h1>
-              <p className="mt-4 max-w-[54ch] text-pretty leading-relaxed text-muted">
-                {tenant.about}
-              </p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Cta href={catalogHref(tenant)}>{tenant.ctaLabel}</Cta>
-                <Cta href={`/${tenant.slug}/about`} tone="outline">
-                  About us
-                </Cta>
-              </div>
-            </div>
-            <ProductImage
-              src={tenant.heroImage}
-              alt=""
-              seed={tenant.name.length * 7919}
-              treatment={treatment}
-              hero
-              priority
-              tint="soft"
-              className="aspect-[16/7] w-full rounded-brand border border-hairline shadow-brand lg:aspect-[4/3]"
-              sizes="(max-width: 1024px) 100vw, 40vw"
-            />
-          </div>
+      {/*
+        Full-bleed and deliberately dark, but composed differently from the
+        showcase variant: content anchors bottom-left rather than centring, and
+        the stat bar sits on the photograph instead of in a white box beneath it.
+        Same "dense" character — data-forward, tight — with its own identity.
+      */}
+      <section className="relative isolate flex min-h-[clamp(30rem,78svh,44rem)] flex-col justify-end overflow-hidden bg-primary">
+        <Backdrop src={tenant.heroImage} overlay="cinematic" />
 
-          {/* Spec strip — reads as dealer data, and gives the compact hero a base. */}
-          <dl className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-brand border border-hairline bg-hairline sm:grid-cols-4">
-            {[
-              [totalVisible.toString(), "Listed now"],
-              [categories.length.toString(), "Categories"],
-              ["210", "Point inspection"],
-              ["5", "Locations"],
-            ].map(([v, k]) => (
-              <div key={k} className="bg-raise px-4 py-3.5">
-                <dt className="text-micro font-semibold uppercase text-muted">{k}</dt>
-                <dd className="display-type mt-1 text-heading font-semibold tabular-nums text-ink">
+        <div className="mx-auto w-full max-w-6xl px-5 pb-8 pt-28 sm:px-8 sm:pb-10 sm:pt-36">
+          <div className="rise max-w-2xl">
+            <p className="text-micro font-semibold uppercase text-primary-ink/75">
+              {tenant.name}
+            </p>
+            <h1 className="display-type mt-4 text-balance text-display font-semibold text-primary-ink">
+              {tenant.tagline}
+            </h1>
+            <p className="mt-5 max-w-[46ch] text-pretty text-lede text-primary-ink/80">
+              {tenant.about}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Cta href={catalogHref(tenant)} tone="onDark">
+                {tenant.ctaLabel}
+              </Cta>
+              <Cta href={`/${tenant.slug}/about`} tone="ghostOnDark">
+                About us
+              </Cta>
+            </div>
+          </div>
+        </div>
+
+        {/*
+          Stat bar on the photograph. Two columns on a phone rather than four —
+          at 390px, four columns put "Point inspection" on three lines and the
+          numbers stopped being scannable, which is the only reason the bar
+          exists.
+        */}
+        <div className="relative border-t border-white/15 bg-primary/45 backdrop-blur-sm">
+          <dl className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-px px-5 sm:px-8 lg:grid-cols-4">
+            {stats.map(([v, k]) => (
+              <div key={k} className="py-4 lg:py-5">
+                <dt className="text-micro font-semibold uppercase text-primary-ink/60">
+                  {k}
+                </dt>
+                <dd className="display-type mt-1 text-heading font-semibold tabular-nums text-primary-ink">
                   {v}
                 </dd>
               </div>

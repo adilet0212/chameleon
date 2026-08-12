@@ -50,6 +50,9 @@ model Tenant {
   // mid-page section. Both nullable — a brand with no assets still renders.
   heroImage     String?
   bandImage     String?
+  // Photograph for the platform index card. Separate from heroImage so the
+  // preview can show a different facet of the brand than its own hero does.
+  cardImage     String?
 
   theme     Theme?
   products  Product[]

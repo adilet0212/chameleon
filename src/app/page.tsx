@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listTenants } from "@/lib/tenant";
 import { themeToCssVars } from "@/lib/theme";
-import { BrandArt } from "@/components/BrandArt";
+import { ProductImage } from "@/components/ProductImage";
 
 /*
   Platform index.
@@ -53,15 +53,24 @@ export default async function Index() {
               style={themeToCssVars(t.theme)}
               className="card-i group flex h-full flex-col overflow-hidden rounded-brand-lg border border-hairline bg-surface shadow-brand hover:shadow-brand-lift"
             >
-              {/* Real artwork in the brand's own language. */}
-              <div className="overflow-hidden border-b border-hairline">
-                <BrandArt
-                  seed={t.name.length * 7919}
-                  treatment={t.theme?.imagery ?? "arc"}
-                  hero
-                  className="card-art aspect-[16/9] w-full"
-                />
-              </div>
+              {/*
+                A real photograph of the brand, carrying that brand's own tint.
+                The previews used generated artwork while the storefronts behind
+                them had photography, which made the front door look less
+                finished than the pages it linked to. "strong" tint here rather
+                than "soft": at card size the wash is what makes three palettes
+                legible side by side in one glance.
+              */}
+              <ProductImage
+                src={t.cardImage ?? null}
+                alt=""
+                seed={t.name.length * 7919}
+                treatment={t.theme?.imagery ?? "arc"}
+                hero
+                tint="strong"
+                className="aspect-[16/10] w-full border-b border-hairline"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
 
               <div className="flex flex-1 flex-col p-6">
                 {/* Set in the brand's own display face at a legible size. */}
