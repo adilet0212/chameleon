@@ -85,7 +85,9 @@ function Cta({
 }) {
   const tones = {
     primary: "bg-primary text-primary-ink hover:opacity-90",
-    accent: "bg-accent text-primary-ink hover:opacity-90",
+    // accentInk, not accent: white on the fill accent measured 3.79:1 against
+    // AA's 4.5:1. The darker token carries white text at 5.18:1.
+    accent: "bg-accent-ink text-primary-ink hover:opacity-90",
     outline: "border border-hairline-strong text-ink hover:bg-alt",
     onDark: "bg-primary-ink text-primary hover:opacity-90",
   };
