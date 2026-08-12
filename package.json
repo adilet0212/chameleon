@@ -11,6 +11,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "benchmark": "tsx scripts/benchmark.ts",
+    "handout": "tsx scripts/handout.ts",
+    "shots": "tsx scripts/screenshots.ts",
     "test": "playwright test",
     "test:ui": "playwright test --ui"
   },

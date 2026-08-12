@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chameleon
 
-## Getting Started
+**One codebase, many branded consumer front-ends.** Theme, content, routing and data are resolved per request from Postgres, so launching a new client brand is a database row rather than a fork of the codebase.
 
-First, run the development server:
+- **Live demo:** DEPLOY_URL_PENDING
+- **Source:** https://github.com/adilet0212/chameleon
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Three storefronts run on this deployment — a coffee roaster, an automotive dealer, and a fitness studio. They have different colours, typefaces, corner radii, imagery treatments, navigation labels and URL structures, and there is no per-brand code anywhere in the repository. All three brands are fictional; no real company's marks or assets appear here.
+
+|  |  |  |
+| :---: | :---: | :---: |
+| ![Rook & Ridge](docs/shots/rook-and-ridge-home.png) | ![Northaven Motors](docs/shots/northaven-home.png) | ![Foundry Athletic](docs/shots/foundry-home.png) |
+| Rook & Ridge | Northaven Motors | Foundry Athletic |
+
+---
+
+## The problem this is built around
+
+An agency that ships branded consumer experiences for many clients out of one team has a specific structural problem: every new client wants a distinct-feeling product, and the obvious way to give them one is to fork the codebase. Do that eight times and you have eight codebases, eight dependency upgrade paths, and eight places to fix the same bug.
+
+The alternative is to make brand identity *data*. That is what this project is: a single application where everything that distinguishes one client from another lives in Postgres, and the code has no idea which brand it is rendering.
+
+The interesting engineering is not "can you build a storefront." It is keeping brands genuinely isolated while sharing one component tree, and keeping the data access fast when it is all keyed on tenant.
+
+## How it works
+
+### Tenant resolution
+
+Two addressing schemes resolve to one route tree:
+
+```
+rook-and-ridge.example.com/menu   ->  /rook-and-ridge/menu   (subdomain)
+example.com/rook-and-ridge/menu   ->  /rook-and-ridge/menu   (path segment)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`src/middleware.ts` folds the subdomain form into the path form with a rewrite. Duplicating routes per addressing scheme is exactly how a multi-tenant codebase starts forking, so there is one set of routes and middleware normalises into it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Middleware deliberately does **not** touch the database. It runs on every request, and opening a connection there would put a query in front of every asset. It resolves the *identifier* only; the tenant record is loaded in the server component that needs it, where React's `cache()` dedupes it to a single query per request. An unknown slug falls through to `notFound()`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Theming
 
-## Learn More
+Each tenant owns a row of design tokens — colours, a typeface pairing, a radius, an imagery treatment. The tenant layout resolves the tenant once and writes those tokens onto a single wrapper element as CSS custom properties:
 
-To learn more about Next.js, take a look at the following resources:
+```tsx
+<div id="tenant-scope" style={themeToCssVars(tenant.theme)}>
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Tailwind v4's `@theme inline` maps its utilities onto those properties, so every component underneath styles itself from the tokens without knowing which brand it is rendering. There is no per-brand stylesheet, no class-name switch, and no conditional keyed on tenant slug anywhere in the component tree.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The structural design decisions — spacing rhythm, type scale, line lengths, focus treatment — are shared and fixed. That is deliberate, and it is why three different brands still look like they came out of the same studio rather than three different template purchases.
 
-## Deploy on Vercel
+### Isolation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Every tenant-scoped read is keyed by `tenantId` first, and product slugs are unique **per tenant** rather than globally:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```prisma
+@@unique([tenantId, slug])
+```
+
+So asking for one brand's item under another brand's URL returns nothing and 404s. Isolation is a property of the schema rather than a filter someone remembered to write — and the end-to-end suite asserts it from the outside.
+
+### URL structure is tenant data
+
+The catalogue lives at `/menu` for the roaster, `/inventory` for the dealer, and `/schedule` for the studio. None of those exist as directories. One dynamic route reads `tenant.catalogSlug` and decides whether the segment is a catalogue or a CMS page.
+
+---
+
+## The database work
+
+The detail-page lookup is `WHERE "tenantId" = $1 AND slug = $2`, backed by the composite unique above. To find out what that index is actually worth, `scripts/benchmark.ts` measures the query with and without it against the full seeded table.
+
+**Measured on 15,036 products across 3 tenants. Neon Postgres 17, `us-east-1`. 350 timed iterations after 50 warm-up, 120 `EXPLAIN ANALYZE` samples. Reported at p50/p95 rather than as a mean, because a mean over a network-attached database is dominated by tail latency.**
+
+### Server-side execution time
+
+Postgres' own `Execution Time` from `EXPLAIN ANALYZE` — excludes network entirely.
+
+| | Without index | With composite index | Change |
+| --- | ---: | ---: | ---: |
+| p50 | 0.785 ms | 0.042 ms | **18.7x faster** |
+| p95 | 0.882 ms | 0.047 ms | **18.8x faster** |
+
+### End-to-end latency
+
+Same query, measured from the client. Included because it is the honest picture of what a request pays, and because the contrast is the point.
+
+| | Without index | With composite index | Change |
+| --- | ---: | ---: | ---: |
+| SQL p50 | 29.147 ms | 28.789 ms | 1.0x |
+| SQL p95 | 32.016 ms | 31.287 ms | 1.0x |
+| Prisma p50 | 29.490 ms | 29.074 ms | 1.0x |
+
+**The end-to-end numbers barely move, and that is not a disappointing result — it is the finding.** Measured from Toronto against `us-east-1`, roughly 28 ms of every request is network round trip. An 0.74 ms saving inside the database disappears into it. The index is unambiguously the right call and it is 18x faster at the thing it does; at this table size, on this link, the network is simply the larger cost. Deployed on Vercel in the same region as the database, the round trip mostly goes away and the server-side number is what remains.
+
+Reporting only the 18.7x would have been misleading. Reporting only the 1.0x would have been wrong. Both are here.
+
+### Why it is a Bitmap Heap Scan and not a Seq Scan
+
+Dropping the composite index does not produce a table scan, because a `(tenantId, category)` index still exists. The planner uses it to narrow to one tenant, then discards the rest by hand:
+
+```
+Bitmap Heap Scan on products  (actual time=0.252..0.732 rows=1.00 loops=1)
+  Recheck Cond: ("tenantId" = '...')
+  Filter: (slug = '...')
+  Rows Removed by Filter: 5011          <-- the work the composite index removes
+  Heap Blocks: exact=252
+  ->  Bitmap Index Scan on "products_tenantId_category_idx"
+Execution Time: 0.753 ms
+```
+
+versus, with it:
+
+```
+Index Scan using "products_tenantId_slug_key" on products
+  Index Cond: (("tenantId" = '...') AND (slug = '...'))
+  Buffers: shared hit=4
+Execution Time: 0.040 ms
+```
+
+`Rows Removed by Filter: 5011` is the whole story: 258 buffers touched and 5,011 rows examined and thrown away, versus 4 buffers and a direct lookup. This is the more honest comparison than "index vs. no index at all" — even with a partially useful index available, the composite key is 18x better, because it eliminates the filter step rather than merely avoiding a scan.
+
+The benchmark restores the index in a `finally` block. It backs a unique constraint, so an interrupted run must not leave the table without it.
+
+Raw output, including all percentiles and both full query plans: [`benchmark-results.json`](benchmark-results.json).
+
+## Testing
+
+Eight specs run against a production build on two viewports — desktop and Pixel 7 — for 16 tests total. Mobile is not an afterthought here; half of what this project is for is the phone case.
+
+| Spec | Asserts |
+| --- | --- |
+| Theme tokens (×3 brands) | Each brand's `--t-primary` resolves to its own stored value, not a fallback |
+| Cross-brand item lookup | One brand's slug returns 404 under another brand |
+| Catalogue leakage | No catalogue renders any other brand's items |
+| URL structure | Each brand's catalogue serves only at its own configured path |
+| Brand switcher | Switching re-themes the app *and* actually navigates |
+| Unknown brand | 404s rather than rendering an unthemed shell |
+
+The two isolation specs are the ones that would block a release. Both failure modes they cover — a brand rendering with another brand's design, and a brand's rows leaking into another brand's page — are only observable from outside, against a real render.
+
+```bash
+npm test
+```
+
+## Running locally
+
+```bash
+npm install
+cp .env.example .env          # add a Postgres connection string
+npm run db:push
+npm run db:seed               # 3 brands, 15,036 products
+npm run dev
+```
+
+| Script | |
+| --- | --- |
+| `npm run db:seed` | Reset and seed all tenants |
+| `npm run benchmark` | Re-run the index benchmark; writes `benchmark-results.json` |
+| `npm test` | Playwright suite, desktop + mobile |
+
+`DIRECT_URL` is required alongside `DATABASE_URL`: Prisma's DDL cannot run through a transaction pooler, so schema pushes use the direct connection and runtime queries use the pooled one.
+
+## Deliberately not here
+
+Auth, payments, image uploads, a CMS editor, and anything AI-flavoured. This was built in a single evening to demonstrate one architectural idea, and a narrow finished thing communicates that better than a broad half-built one. The two things that were never going to be cut are the measured benchmark and the isolation tests, because they are the parts that are actually verifiable.
+
+Known follow-ups, in the order I would do them: the catalogue paginates at 24 with no next page; Next 16.3 has deprecated the `middleware` file convention in favour of `proxy`, which is a rename plus a signature change; and the tenant index page is statically prerendered, so adding a brand needs a rebuild to appear there.
+
+## Stack
+
+Next.js 16 (App Router, RSC) · TypeScript · Tailwind CSS v4 · Prisma 6 · PostgreSQL (Neon) · Playwright · Vercel
+
+Placeholder imagery is generated SVG, seeded per product, so it is deterministic across renders and deploys and costs no network requests — which is most of why the mobile page weight stays low.
+
+---
+
+Built by **Adilet Masalbekov** — [github.com/adilet0212](https://github.com/adilet0212)
