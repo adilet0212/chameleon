@@ -83,7 +83,7 @@ export default async function ItemPage({ params }: { params: Promise<Params> }) 
           </div>
 
           <div className="rise rise-2 lg:pt-3">
-            <p className="text-micro font-semibold uppercase text-accent">
+            <p className="text-micro font-semibold uppercase text-accent-ink">
               {product.category}
             </p>
             <h1 className="display-type mt-3 text-balance text-title font-semibold text-ink">
@@ -91,7 +91,7 @@ export default async function ItemPage({ params }: { params: Promise<Params> }) 
             </h1>
             <p className="mt-4 text-pretty text-lede text-muted">{product.blurb}</p>
 
-            <p className="display-type mt-7 text-title font-semibold tabular-nums text-accent">
+            <p className="display-type mt-7 text-title font-semibold tabular-nums text-accent-ink">
               {product.priceCents === 0
                 ? "Included"
                 : formatPrice(product.priceCents)}

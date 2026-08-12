@@ -67,7 +67,11 @@ model Theme {
   primary      String // hex, brand primary
   primaryInk   String // text colour that meets contrast on `primary`
   secondary    String // supporting brand colour, carries large areas
-  accent       String // hex, used sparingly — CTAs, prices, active states, eyebrows
+  accent       String // hex, used sparingly — CTA fills, active states
+  // A darkened accent for small text. The fill accent is chosen for presence on a
+  // button; at 12px on a light surface it measured 3.7:1 against WCAG AA's 4.5:1,
+  // so text gets its own token rather than the palette being compromised for it.
+  accentInk    String
   ink          String // primary body text
   inkMuted     String // secondary text
 

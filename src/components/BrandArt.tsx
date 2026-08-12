@@ -58,10 +58,13 @@ function pick(r: () => number, allowAccent: boolean): string {
    -------------------------------------------------------------------------- */
 function Arc({ seed, hero }: { seed: number; hero: boolean }) {
   const r = rng(seed);
-  const rings = 3 + Math.floor(r() * (hero ? 4 : 3));
+  // Hero placements crop a square viewBox to 4:3 or wider, so a sparse
+  // composition leaves the frame looking empty. Heroes get more rings and a
+  // tighter spread so the arcs actually reach the edges.
+  const rings = hero ? 6 + Math.floor(r() * 3) : 3 + Math.floor(r() * 3);
   const cx = 18 + r() * 64;
   const cy = 22 + r() * 60;
-  const spread = 9 + r() * 12;
+  const spread = hero ? 7 + r() * 7 : 9 + r() * 12;
   const rot = r() * 360;
   const accentRing = Math.floor(r() * rings);
 

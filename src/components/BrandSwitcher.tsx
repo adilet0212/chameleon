@@ -44,11 +44,27 @@ export function BrandSwitcher({
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Warm the RSC payload for the other brands so the switch is a paint, not a
-  // fetch. Three tenants is a small enough set to prefetch all of them eagerly.
+  // fetch — but not during load. Prefetching eagerly pulled and parsed two full
+  // RSC payloads while the page was still becoming interactive, which showed up
+  // directly in Total Blocking Time. Deferring to idle keeps the switch instant
+  // and takes the work off the critical path.
   useEffect(() => {
-    for (const t of tenants) {
-      if (t.slug !== activeSlug) router.prefetch(`/${t.slug}`);
+    const warm = () => {
+      for (const t of tenants) {
+        if (t.slug !== activeSlug) router.prefetch(`/${t.slug}`);
+      }
+    };
+
+    // This only runs in the browser, so `window` is always defined here. Safari
+    // still lacks requestIdleCallback, hence the timeout fallback.
+    // `in` would narrow window to never in the else branch, since lib.dom
+    // declares requestIdleCallback as always present. Safari does not have it.
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
     }
+    const id = window.setTimeout(warm, 1500);
+    return () => window.clearTimeout(id);
   }, [tenants, activeSlug, router]);
 
   function switchTo(t: SwitcherTenant) {

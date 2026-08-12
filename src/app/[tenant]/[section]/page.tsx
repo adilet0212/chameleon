@@ -145,7 +145,7 @@ export default async function SectionPage({
 
   return (
     <article className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 sm:py-24">
-      <p className="text-micro font-semibold uppercase text-accent">{page.title}</p>
+      <p className="text-micro font-semibold uppercase text-accent-ink">{page.title}</p>
       <h1 className="display-type mt-4 text-balance text-title font-semibold text-ink">
         {page.heading}
       </h1>

@@ -34,6 +34,7 @@ export function themeToCssVars(theme: Theme | null): CSSProperties {
     "--t-primary-ink": theme.primaryInk,
     "--t-secondary": theme.secondary,
     "--t-accent": theme.accent,
+    "--t-accent-ink": theme.accentInk,
     "--t-ink": theme.ink,
     "--t-ink-muted": theme.inkMuted,
     "--t-surface": theme.surface,

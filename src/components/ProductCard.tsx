@@ -70,7 +70,7 @@ export function ProductCard({
           compact ? "p-4 sm:justify-start sm:p-5" : lead ? "p-6 sm:p-8" : "p-5",
         ].join(" ")}
       >
-        <p className="text-micro font-semibold uppercase text-accent">
+        <p className="text-micro font-semibold uppercase text-accent-ink">
           {product.category}
         </p>
         <h3

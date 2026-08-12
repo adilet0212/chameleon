@@ -101,7 +101,7 @@ export default async function Index() {
                   </span>
                 </div>
 
-                <span className="mt-5 text-sm font-semibold text-accent underline-offset-4 group-hover:underline">
+                <span className="mt-5 text-sm font-semibold text-accent-ink underline-offset-4 group-hover:underline">
                   Open storefront →
                 </span>
               </div>

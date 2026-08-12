@@ -63,7 +63,7 @@ function Cta({
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-micro font-semibold uppercase text-accent">{children}</p>
+    <p className="text-micro font-semibold uppercase text-accent-ink">{children}</p>
   );
 }
 
@@ -81,7 +81,7 @@ function SectionHead({
       <h2 className="display-type text-title font-semibold text-ink">{title}</h2>
       <Link
         href={href}
-        className="shrink-0 pb-1 text-sm font-semibold text-accent underline-offset-4 hover:underline"
+        className="shrink-0 pb-1 text-sm font-semibold text-accent-ink underline-offset-4 hover:underline"
       >
         {linkLabel}
       </Link>
