@@ -55,7 +55,9 @@ Every merchandised item, plus each tenant's hero and one mid-page band, carries 
 
 Each photograph carries a low-opacity multiply wash of the tenant's own primary. That is what stops three sets of free-licence stock from reading as three sets of free-licence stock — it pulls every image in a storefront toward that brand's palette, and it costs no per-brand code because it reads the same token as everything else.
 
-Images are served through `next/image` (AVIF/WebP, per-breakpoint `sizes`, lazy below the fold) inside fixed-aspect wrappers that reserve the box before load. CLS is 0.
+Images are served through `next/image` (AVIF/WebP, per-breakpoint `sizes`, lazy below the fold) inside fixed-aspect wrappers that reserve the box before load. CLS is 0 on every storefront.
+
+Heroes are composed per variant rather than sharing one treatment. `showcase` centres its content over a full-bleed duotone; `dense` grades diagonally from near-opaque at the bottom-left, where the headline and stat bar sit, to mostly clear at the top right so the showroom still reads as a photograph; `editorial` runs its image to the right edge of the viewport as a grid track, taller than the text column. The grid matters — an absolutely positioned version at 56vw overlapped the centred container and clipped the headline, and a grid track cannot overlap its sibling.
 
 ### Composition is a token too
 
@@ -151,33 +153,32 @@ Raw output, including all percentiles and both full query plans: [`benchmark-res
 
 ## Lighthouse
 
-Mobile form factor, simulated throttling, run against the deployed build. Lighthouse 12.8.2. Two tenants measured because the layout variants differ enough to score differently.
+Mobile form factor, simulated throttling, against the deployed build. Lighthouse 12.8.2. All three storefronts measured, because the layout variants differ enough to score differently.
 
-| | Foundry (`showcase`) | Rook & Ridge (`editorial`) |
-| --- | ---: | ---: |
-| Performance | **85** | **77** |
-| Accessibility | **100** | **100** |
-| Best Practices | **100** | **100** |
-| SEO | **100** | **100** |
-| LCP | 3.5 s | 3.5 s |
-| Total Blocking Time | 270 ms | 530 ms |
-| Cumulative Layout Shift | **0** | **0** |
+| | Northaven (`dense`) | Foundry (`showcase`) | Rook & Ridge (`editorial`) |
+| --- | ---: | ---: | ---: |
+| Performance | **85** | **84** | **82** |
+| Accessibility | **100** | **100** | **100** |
+| Best Practices | **100** | **100** | **100** |
+| SEO | **100** | **100** | **100** |
+| LCP | 3.4 s | 3.5 s | 3.6 s |
+| Total Blocking Time | 290 ms | 300 ms | 350 ms |
+| Cumulative Layout Shift | **0** | **0** | **0** |
 
-CLS is 0 on both, which is the number I care most about here: every image sits in a fixed-aspect wrapper that reserves its box before the photograph arrives, so nothing moves as the page fills in.
+Two numbers worth pointing at. **CLS is 0 on all three** — every image sits in a fixed-aspect wrapper that reserves its box before the photograph arrives, including three full-bleed heroes, so nothing moves as the page fills in. And **contrast passes on all three**, which is the one that could easily have broken: every hero now sets text over a photograph, and an overlay tuned by eye rather than measured is exactly how that fails.
 
-Performance is 77–85, short of the 95 I was aiming for. The honest causes, in order of size:
+Performance is 82–85, short of 95. The honest causes, largest first:
 
-1. **Five font families load at the root** so switching brands never triggers a font request. That is a deliberate trade for the thing being demonstrated — a flash of unstyled text mid-switch would undercut the whole demo — but it costs first paint. Loading only the active brand's pair and prefetching the rest at idle is the obvious fix.
-2. **LCP is a photograph.** Real imagery was the point of this pass, and it moved LCP from 3.1 s to 3.5 s. Served as AVIF/WebP through `next/image` at per-breakpoint sizes, hero images marked `priority`, everything below the fold lazy.
-3. Editorial scores lower than showcase because its hero renders a photograph *and* a large serif display face above the fold.
+1. **Five font families load at the root** so switching brands never triggers a font request. A deliberate trade for the thing being demonstrated — a flash of unstyled text mid-switch would undercut the whole demo — but it costs first paint. Loading only the active brand's pair and prefetching the rest at idle is the obvious fix.
+2. **LCP is a photograph** on every storefront. That was the point of the imagery pass. Served as AVIF/WebP through `next/image` at per-breakpoint sizes, heroes marked `priority`, everything below the fold lazy.
 
-Three defects that earlier runs caught, all mine, all fixed and re-measured:
+Earlier runs scored 74 and caught three defects, all mine, all fixed and re-measured:
 
-- **Accent text failed WCAG AA** at 3.4–4.0:1. Small text now uses a separate `accentInk` token, each value verified ≥4.5:1 against every surface tint. A later run caught the same failure on accent-*filled* CTAs — white on `#E2542A` measured 3.79:1 — so those use `accentInk` too, at 5.18:1.
+- **Accent text failed WCAG AA** at 3.4–4.0:1. Small text uses a separate `accentInk` token, each value verified ≥4.5:1 against every surface tint. A later run caught the same failure on accent-*filled* CTAs — white on `#E2542A` at 3.79:1 — so those use `accentInk` too, at 5.18:1.
 - **The re-skin transition applied to every descendant**, including ~100 SVG nodes per card, dominating style recalculation at 621 ms. SVG internals excluded.
-- **The switcher prefetched both other tenants on mount**, parsing two RSC payloads during load. Deferred to `requestIdleCallback`. TBT 650 ms → 270 ms.
+- **The switcher prefetched both other tenants on mount**, parsing two RSC payloads during load. Deferred to `requestIdleCallback`. TBT 650 ms → ~300 ms.
 
-Raw reports: [`docs/lighthouse-mobile.json`](docs/lighthouse-mobile.json), [`docs/lighthouse-mobile-rook.json`](docs/lighthouse-mobile-rook.json).
+Raw reports: [`docs/lh-northaven.json`](docs/lh-northaven.json), [`docs/lh-foundry.json`](docs/lh-foundry.json), [`docs/lh-rook-and-ridge.json`](docs/lh-rook-and-ridge.json).
 
 ## Testing
 
