@@ -2,7 +2,7 @@
 
 **One codebase, many branded consumer front-ends.** Theme, content, routing and data are resolved per request from Postgres, so launching a new client brand is a database row rather than a fork of the codebase.
 
-- **Live demo:** DEPLOY_URL_PENDING
+- **Live demo:** https://chameleon-gray.vercel.app
 - **Source:** https://github.com/adilet0212/chameleon
 
 Three storefronts run on this deployment — a coffee roaster, an automotive dealer, and a fitness studio. They have different colours, typefaces, corner radii, imagery treatments, navigation labels and URL structures, and there is no per-brand code anywhere in the repository. All three brands are fictional; no real company's marks or assets appear here.
@@ -39,7 +39,7 @@ Middleware deliberately does **not** touch the database. It runs on every reques
 
 ### Theming
 
-Each tenant owns a row of design tokens — colours, a typeface pairing, a radius, an imagery treatment. The tenant layout resolves the tenant once and writes those tokens onto a single wrapper element as CSS custom properties:
+Each tenant owns a row of design tokens — a five-colour palette plus three surface tints, a typeface pairing, a radius, display letter-spacing, a brand-tinted shadow, and an imagery language. The tenant layout resolves the tenant once and writes those tokens onto a single wrapper element as CSS custom properties:
 
 ```tsx
 <div id="tenant-scope" style={themeToCssVars(tenant.theme)}>
@@ -48,6 +48,22 @@ Each tenant owns a row of design tokens — colours, a typeface pairing, a radiu
 Tailwind v4's `@theme inline` maps its utilities onto those properties, so every component underneath styles itself from the tokens without knowing which brand it is rendering. There is no per-brand stylesheet, no class-name switch, and no conditional keyed on tenant slug anywhere in the component tree.
 
 The structural design decisions — spacing rhythm, type scale, line lengths, focus treatment — are shared and fixed. That is deliberate, and it is why three different brands still look like they came out of the same studio rather than three different template purchases.
+
+### Composition is a token too
+
+Colour alone does not make two storefronts feel like different brands. If every client gets the same skeleton with a new palette, it reads as a theme switcher rather than a platform — so `tenant.layoutVariant` selects between three arrangements:
+
+| Variant | Hero | Featured | Catalogue grid |
+| --- | --- | --- | --- |
+| `editorial` | Split, generous measure | One large lead card + compact supporting pair | 3-across |
+| `dense` | Compact, with a spec strip | Four across, tight gutters | 4-across |
+| `showcase` | Full-bleed, dark, artwork overlay | Asymmetric — one tall beside a stacked pair | 3-across |
+
+They also differ in card aspect ratios, category presentation, and the sequence of surface tints down the page. What they share is the spacing scale, the type ramp, focus states, and the card component itself — none of them ships its own card or its own button, and none is keyed on a brand name. A fourth arrangement is a branch in `HomeLayouts.tsx` plus a string in a row.
+
+### Catalogue data vs. benchmark data
+
+The products table holds 15,036 rows so the index benchmark has something real to measure, but only the 36 hand-written entries are merchandising. `isCatalogueVisible` separates "exists in the table" from "shown to a visitor": every user-facing query filters on it — including the category counts, since a catalogue reading *Espresso 1,003* beside six real drinks is its own kind of tell — while `scripts/benchmark.ts` deliberately does not. Generated rows 404 for a visitor and stay addressable for the benchmark, and a spec asserts both.
 
 ### Isolation
 
@@ -77,8 +93,8 @@ Postgres' own `Execution Time` from `EXPLAIN ANALYZE` — excludes network entir
 
 | | Without index | With composite index | Change |
 | --- | ---: | ---: | ---: |
-| p50 | 0.785 ms | 0.042 ms | **18.7x faster** |
-| p95 | 0.882 ms | 0.047 ms | **18.8x faster** |
+| p50 | 0.773 ms | 0.042 ms | **18.4x faster** |
+| p95 | 0.961 ms | 0.052 ms | **18.5x faster** |
 
 ### End-to-end latency
 
@@ -86,13 +102,13 @@ Same query, measured from the client. Included because it is the honest picture 
 
 | | Without index | With composite index | Change |
 | --- | ---: | ---: | ---: |
-| SQL p50 | 29.147 ms | 28.789 ms | 1.0x |
-| SQL p95 | 32.016 ms | 31.287 ms | 1.0x |
-| Prisma p50 | 29.490 ms | 29.074 ms | 1.0x |
+| SQL p50 | 29.994 ms | 28.931 ms | 1.0x |
+| SQL p95 | 32.409 ms | 31.491 ms | 1.0x |
+| Prisma p50 | 29.608 ms | 29.532 ms | 1.0x |
 
-**The end-to-end numbers barely move, and that is not a disappointing result — it is the finding.** Measured from Toronto against `us-east-1`, roughly 28 ms of every request is network round trip. An 0.74 ms saving inside the database disappears into it. The index is unambiguously the right call and it is 18x faster at the thing it does; at this table size, on this link, the network is simply the larger cost. Deployed on Vercel in the same region as the database, the round trip mostly goes away and the server-side number is what remains.
+**The end-to-end numbers barely move, and that is not a disappointing result — it is the finding.** Measured from Toronto against `us-east-1`, roughly 28 ms of every request is network round trip. A 0.73 ms saving inside the database disappears into it. The index is unambiguously the right call and it is 18x faster at the thing it does; at this table size, on this link, the network is simply the larger cost. Deployed on Vercel in the same region as the database, the round trip mostly goes away and the server-side number is what remains.
 
-Reporting only the 18.7x would have been misleading. Reporting only the 1.0x would have been wrong. Both are here.
+Reporting only the 18.4x would have been misleading. Reporting only the 1.0x would have been wrong. Both are here.
 
 ### Why it is a Bitmap Heap Scan and not a Seq Scan
 
@@ -125,7 +141,7 @@ Raw output, including all percentiles and both full query plans: [`benchmark-res
 
 ## Testing
 
-Eight specs run against a production build on two viewports — desktop and Pixel 7 — for 16 tests total. Mobile is not an afterthought here; half of what this project is for is the phone case.
+Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total. Mobile is not an afterthought here; half of what this project is for is the phone case.
 
 | Spec | Asserts |
 | --- | --- |
@@ -135,6 +151,7 @@ Eight specs run against a production build on two viewports — desktop and Pixe
 | URL structure | Each brand's catalogue serves only at its own configured path |
 | Brand switcher | Switching re-themes the app *and* actually navigates |
 | Unknown brand | 404s rather than rendering an unthemed shell |
+| Benchmark rows | Generated rows never appear in a catalogue and 404 when addressed directly |
 
 The two isolation specs are the ones that would block a release. Both failure modes they cover — a brand rendering with another brand's design, and a brand's rows leaking into another brand's page — are only observable from outside, against a real render.
 
@@ -157,6 +174,8 @@ npm run dev
 | `npm run db:seed` | Reset and seed all tenants |
 | `npm run benchmark` | Re-run the index benchmark; writes `benchmark-results.json` |
 | `npm test` | Playwright suite, desktop + mobile |
+| `npm run shots` | Re-capture the README screenshots |
+| `npm run handout` | Re-render `docs/handout.pdf` |
 
 `DIRECT_URL` is required alongside `DATABASE_URL`: Prisma's DDL cannot run through a transaction pooler, so schema pushes use the direct connection and runtime queries use the pooled one.
 
