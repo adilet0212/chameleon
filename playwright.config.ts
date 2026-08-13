@@ -29,7 +29,17 @@ export default defineConfig({
 
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    {
+      // 390x844 rather than a device preset. That is the narrow end of the
+      // phones this gets looked at on, and the width the layouts were tuned
+      // against — Pixel 7's 412px is wide enough to hide a crowded hero or a
+      // control that overflows its container.
+      name: "mobile",
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 390, height: 844 },
+      },
+    },
   ],
 
   webServer: {

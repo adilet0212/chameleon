@@ -184,6 +184,8 @@ Raw reports: [`docs/lh-northaven.json`](docs/lh-northaven.json), [`docs/lh-found
 
 Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total, all passing. Mobile is not an afterthought here; half of what this project is for is the phone case.
 
+The mobile project pins 390x844 rather than using a device preset. Pixel 7's 412px is wide enough to hide a crowded hero or a control that overflows its container — the brand switcher clipping its outer labels was a real bug on this project, caught at 375 — so the suite runs at the narrow end of what these pages actually get opened on.
+
 | Spec | Asserts |
 | --- | --- |
 | Theme tokens (×3 brands) | Each brand's `--t-primary` resolves to its own stored value, not a fallback |

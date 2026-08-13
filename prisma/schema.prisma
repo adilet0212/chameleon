@@ -42,9 +42,9 @@ model Tenant {
   // data, resolved per request, not a route hardcoded in the filesystem.
   catalogSlug String
   // Page composition, not just page colour. Selects between the layout arrangements
-  // in src/components/layouts — "editorial" | "dense" | "showcase". A brand that
-  // only differed by palette would not really be a different brand, so structure is
-  // a token like everything else.
+  // in src/components/HomeLayouts.tsx — "editorial" | "dense" | "showcase". A brand
+  // that only differed by palette would not really be a different brand, so
+  // structure is a token like everything else.
   layoutVariant String
   // Atmospheric photography. heroImage backs the hero; bandImage backs one
   // mid-page section. Both nullable — a brand with no assets still renders.

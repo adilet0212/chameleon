@@ -2,7 +2,7 @@
 
 Everything below is grounded in code in this repo. Line numbers are from the current commit. Where I could not find something, it says **NOT FOUND IN REPO** — do not fill those in from memory.
 
-**Read section 0 first. Three documentation errors remain in this repo that will burn you if someone opens a file.** (A fourth — the benchmark number disagreeing across files — has been fixed; §0.1 explains what to say anyway, because the number still moves between runs.)
+**Read section 0 first.** One real issue remains (§0.4, dead code). The other three are fixed — they are kept here because §0.1 still matters: the benchmark number moves between runs even though the files now agree.
 
 ---
 
@@ -20,17 +20,15 @@ But the ratio genuinely moves with cache state. Observed across runs: **18.2x, 1
 
 If pushed: *"It moves between roughly 18 and 19 depending on cache state — the README documents the range and the committed JSON is the run those figures came from."*
 
-### 0.2 The README misstates the mobile test viewport
+### 0.2 Mobile test viewport — fixed, and worth mentioning
 
-- `README.md:185` says tests run on "a 390x844 phone".
-- `playwright.config.ts:32` actually uses `devices["Pixel 7"]`.
-- 390×844 is the **screenshot** script's viewport (`scripts/screenshots.ts`), not the test viewport.
+The README claimed tests ran at 390×844 while `playwright.config.ts` used the Pixel 7 preset (412×915). Rather than correct the prose, the config now pins **390×844** explicitly (`playwright.config.ts:36-42`), keeping Pixel 7's device characteristics — touch, mobile user agent — but at the narrower width. All 18 tests pass at 390.
 
-If asked: *"That line is wrong — the suite runs Pixel 7, the 390 figure is my screenshot script."*
+**This is worth volunteering, not hiding:** *"I test at 390 rather than a device preset, because 412 is wide enough to hide a hero that's too crowded or a control that overflows. The switcher overflowing its container at 375 is a bug I actually shipped and caught in a screenshot, so I moved the tests down to the narrow end."* That turns a documentation error into evidence you fix root causes rather than prose.
 
-### 0.3 A schema comment points at a directory that does not exist
+### 0.3 Stale schema comment — fixed
 
-`prisma/schema.prisma:45` says the layout variants live in `src/components/layouts`. There is no such directory. They are in `src/components/HomeLayouts.tsx`. Stale comment from an earlier structure.
+`prisma/schema.prisma:45` now correctly points at `src/components/HomeLayouts.tsx`. It previously named a `src/components/layouts` directory that never existed.
 
 ### 0.4 `x-tenant` is dead code
 
@@ -221,7 +219,7 @@ Mobile, simulated throttling, against the deployed build.
 
 ## 4. THE TEST SUITE — what it actually proves
 
-**File:** `e2e/tenancy.spec.ts`. **9 specs × 2 projects = 18 tests.** Projects at `playwright.config.ts:30-33`: `Desktop Chrome` and `Pixel 7`. `webServer` (`:35-36`) runs `npm run build && next start`, so tests run against a **production build**, not dev.
+**File:** `e2e/tenancy.spec.ts`. **9 specs × 2 projects = 18 tests.** Projects at `playwright.config.ts:30-43`: `Desktop Chrome`, and a mobile project pinned to **390×844** (`:36-42`) with Pixel 7's touch and user-agent characteristics. `webServer` (`:45-46`) runs `npm run build && next start`, so tests run against a **production build**, not dev.
 
 ### What each spec genuinely asserts
 
@@ -357,8 +355,8 @@ Fixed nothing, as instructed. In rough order of how bad it'd be if opened live:
 
 1. **Dead code:** `x-tenant` header set at `middleware.ts:63,71`, never read anywhere. (§0.4)
 2. **Three conflicting benchmark numbers:** README 18.8x / schema comment 18.6x / committed JSON 18.2x. (§0.1)
-3. **Wrong path in a comment:** `schema.prisma:45` cites `src/components/layouts`, which doesn't exist.
-4. **Wrong viewport in README:** `README.md:185` says 390×844; `playwright.config.ts:32` is `Pixel 7`.
+3. *(Fixed.)* `schema.prisma:45` now points at the real file, `src/components/HomeLayouts.tsx`.
+4. *(Fixed.)* The README/config viewport mismatch is gone — the mobile project is pinned to 390×844 and the README matches.
 5. *(Resolved.)* The two supplied press photos of real badged vehicles are gone — `public/vehicles/` is deleted and those listings are back on free-licence Unsplash stock. **The four claims were rewritten at the same time, and this is the part worth understanding**: swapping the images alone would not have made "no real company's marks appear here" true, because the Unsplash stand-ins are also photographs of real cars — the Range Rover shot has RANGE ROVER across the hood and a Land Rover grille badge. Free-licence stock of a car shows the car's marks. So all four now claim the accurate, verifiable thing: *the brands are invented; the photography is free-licence stock and some frames incidentally show real production vehicles; no affiliation is implied.*
 
    If anyone raises it: *"The brands are entirely invented — names, copy, palettes, layouts. The photography is free-licence Unsplash, and stock photos of cars have badges on them, so I say that explicitly rather than claiming something I can't back."* That is a better answer than the original claim was.
@@ -422,7 +420,7 @@ Say **"I didn't get to that"** — do not improvise. Each of these is a real gap
 7. **Observability.** No logging, no error tracking, no tracing, no metrics.
 8. **Rate limiting, WAF, abuse handling.** None.
 9. **i18n / multi-currency.** `formatPrice` (`src/lib/tenant.ts:143`) is hardcoded to `en-CA` and `CAD`. A real multi-brand platform crossing markets breaks on this immediately — good thing to name unprompted.
-10. **CI.** No `.github/workflows`. Tests exist but nothing runs them automatically. `playwright.config.ts` has `process.env.CI` branches (`:22-25`) that no pipeline sets.
+10. **CI.** No `.github/workflows`. Tests exist but nothing runs them automatically. `playwright.config.ts` has `process.env.CI` branches (`:17-20`, `:48`) that no pipeline sets.
 11. **Load, concurrency, or scale testing.** §3.5.
 12. **Accessibility beyond automated Lighthouse.** No keyboard-navigation testing, no screen-reader testing. Lighthouse's 100 means no *detectable* violations, which is a much weaker claim than "accessible."
 13. **Image licensing for the two truck photos.** §7.5.
