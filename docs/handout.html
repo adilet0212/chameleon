@@ -5,90 +5,98 @@
 <title>Chameleon — Adilet Masalbekov</title>
 <style>
   /*
-    One page, printed to PDF or straight to paper. A4 and Letter both fit.
-    Assumes it is read by someone non-technical first, then handed to an engineer,
-    so the top third is legible from arm's length and the technical substance sits
-    below it without the reader needing to have understood the top.
+    One page, A4, printed to PDF or straight to paper.
+
+    Assumes it is read by someone non-technical first and handed to an engineer
+    second, so the top third is legible from arm's length and the technical
+    substance sits below it without the reader needing to have understood the top.
+
+    The screenshot earns its space by doing the one thing words cannot here: three
+    brands, visibly different, from one codebase. It is cropped to the cards alone —
+    the page header above them just repeats this sheet's own headline, and the
+    "Open storefront" links are click targets that mean nothing on paper.
   */
-  @page { size: A4 portrait; margin: 14mm 15mm; }
+  @page { size: A4 portrait; margin: 12mm 14mm; }
 
   :root {
     --ink: #16181a;
     --muted: #5c6469;
     --hairline: #d9dde0;
-    --accent: #1d4ed8;
   }
 
   * { box-sizing: border-box; }
-
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
   body {
     margin: 0;
     font-family: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", Arial, sans-serif;
     color: var(--ink);
-    font-size: 10.4pt;
-    line-height: 1.5;
+    font-size: 9.9pt;
+    line-height: 1.42;
   }
 
-  h1 { font-size: 25pt; line-height: 1.05; margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: 23pt; line-height: 1.02; margin: 0; letter-spacing: -0.02em; }
   h2 {
-    font-size: 8.4pt; text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--muted); margin: 0 0 5px; font-weight: 700;
+    font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); margin: 0 0 4px; font-weight: 700;
   }
-  p { margin: 0 0 8px; }
+  p { margin: 0 0 6px; }
 
-  .tagline { font-size: 12.2pt; color: var(--muted); margin: 7px 0 0; max-width: 62ch; }
+  .tagline { font-size: 11.4pt; color: var(--muted); margin: 6px 0 0; max-width: 64ch; }
 
-  .rule { height: 2px; background: var(--ink); margin: 13px 0 15px; }
-  .hr { height: 1px; background: var(--hairline); margin: 15px 0; border: 0; }
+  .rule { height: 2px; background: var(--ink); margin: 9px 0 10px; }
+  .hr { height: 1px; background: var(--hairline); margin: 8px 0; border: 0; }
 
   /* Links block — the single most important thing on the page. */
-  .links {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 11px;
-    margin: 0 0 15px;
-  }
-  .link-card { border: 1.5px solid var(--ink); border-radius: 4px; padding: 10px 12px; }
+  .links { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 0 0 10px; }
+  .link-card { border: 1.5px solid var(--ink); border-radius: 3px; padding: 8px 10px; }
   .link-card .label {
-    font-size: 7.8pt; text-transform: uppercase; letter-spacing: 0.1em;
-    color: var(--muted); font-weight: 700; margin-bottom: 3px;
+    font-size: 7.4pt; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); font-weight: 700; margin-bottom: 2px;
   }
   .link-card .url {
     font-family: "Consolas", "SF Mono", Menlo, monospace;
-    font-size: 11.4pt; font-weight: 600; word-break: break-all; line-height: 1.25;
+    font-size: 10.8pt; font-weight: 600; word-break: break-all; line-height: 1.2;
   }
 
-  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .shot img { width: 88%; margin: 0 auto; display: block; border: 1px solid var(--hairline); border-radius: 3px; }
+  .caption { font-size: 7.8pt; color: var(--muted); margin: 4px 0 0; text-align: center; }
 
-  table { width: 100%; border-collapse: collapse; margin-top: 3px; }
-  th, td { text-align: left; padding: 3.5px 0; font-size: 9.6pt; }
-  th { color: var(--muted); font-weight: 600; font-size: 8.2pt; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 2px; }
+  th, td { text-align: left; padding: 2.5px 0; font-size: 9.2pt; }
+  th { color: var(--muted); font-weight: 600; font-size: 7.8pt; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "Consolas", monospace; }
   .win { font-weight: 700; }
 
-  .note { font-size: 8.8pt; color: var(--muted); line-height: 1.42; margin-top: 6px; }
+  .note { font-size: 8.4pt; color: var(--muted); line-height: 1.38; margin-top: 5px; }
 
-  ul { margin: 0; padding-left: 15px; }
-  li { margin-bottom: 4px; }
+  ul { margin: 0; padding-left: 14px; }
+  li { margin-bottom: 3px; }
 
   .contact {
-    border-top: 2px solid var(--ink); margin-top: auto; padding-top: 11px;
+    border-top: 2px solid var(--ink); margin-top: auto; padding-top: 9px;
     display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
   }
-  .contact .name { font-size: 14pt; font-weight: 700; letter-spacing: -0.01em; }
+  .contact .name { font-size: 13pt; font-weight: 700; letter-spacing: -0.01em; }
   .contact .details {
-    font-size: 10.2pt; text-align: right; line-height: 1.55;
+    font-size: 9.6pt; text-align: right; line-height: 1.5;
     font-family: "Consolas", "SF Mono", Menlo, monospace;
   }
 
-  .page { min-height: 262mm; display: flex; flex-direction: column; }
-  .grow { flex: 1; }
+  /* 273mm of content box at 12mm margins. The grow spacer absorbs the remainder
+     so the contact block sits on the baseline rather than floating mid-page. */
+  .page { min-height: 271mm; display: flex; flex-direction: column; }
+  /* No minimum: when the content fills the page this must contribute nothing,
+     or it pushes the contact block onto a second sheet. */
+  .grow { flex: 1; min-height: 0; }
 
   @media screen {
     body { background: #eef0f2; padding: 24px; }
     .page {
       background: #fff; max-width: 210mm; margin: 0 auto;
-      padding: 14mm 15mm; box-shadow: 0 4px 22px rgba(0,0,0,.14);
+      padding: 12mm 14mm; box-shadow: 0 4px 22px rgba(0,0,0,.14);
     }
   }
 </style>
@@ -98,8 +106,8 @@
 
   <h1>Chameleon</h1>
   <p class="tagline">
-    One codebase serving many separately branded consumer front-ends — where adding
-    a new client brand is a database row instead of a copy of the project.
+    One codebase serving many separately branded consumer front-ends — adding a new
+    client brand is a database row, not a copy of the project.
   </p>
 
   <div class="rule"></div>
@@ -115,20 +123,28 @@
     </div>
   </div>
 
+  <div class="shot">
+    <img src="brand-cards.png" alt="Three branded storefronts — a fitness studio, a car dealership and a coffee roaster — each with its own photography, typeface, colour palette and page layout." />
+    <p class="caption">
+      The three storefronts on the live site — different photography, typefaces, palettes
+      and page structures, with no per-brand code between them.
+    </p>
+  </div>
+
+  <hr class="hr" />
+
   <h2>What it does</h2>
   <p>
-    The demo runs three storefronts — a coffee roaster, a car dealership and a fitness
-    studio. Each has its own colours, typefaces, page layout and web addresses, and a
-    button on screen switches between them instantly.
+    All three storefronts above are the same application. Each has its own colours,
+    typefaces, layout and web addresses, and a button on screen switches between them
+    instantly — but nothing about any individual brand is written into the code. The
+    differences are stored in a database and applied when the page is requested, so a
+    company running many client brands can add another without duplicating and
+    re-maintaining the software.
   </p>
-  <p>
-    All three are the same application. Nothing about any individual brand is written
-    into the code; the differences are stored in a database and applied when the page
-    is requested. That means a company running many client brands can add another one
-    without duplicating and re-maintaining the software.
-  </p>
-  <p style="font-size:9.4pt;color:var(--muted);">
-    All three brands are invented for this project. Photography is free-licence stock; some frames incidentally show real production vehicles. No affiliation is implied.
+  <p style="font-size:8.4pt;color:var(--muted);margin-bottom:0;">
+    All three brands are invented for this project. Photography is free-licence stock; some
+    frames incidentally show real production vehicles. No affiliation is implied.
   </p>
 
   <hr class="hr" />
@@ -136,7 +152,7 @@
   <div class="cols">
     <div>
       <h2>Measured — database index</h2>
-      <p style="font-size:9.4pt;margin-bottom:4px;">
+      <p style="font-size:8.8pt;margin-bottom:3px;">
         Product lookup across <strong>15,036 rows</strong>, with and without a composite
         index on <code>(tenantId, slug)</code>.
       </p>
@@ -158,26 +174,24 @@
         </tr>
       </table>
       <p class="note">
-        <strong>19× faster</strong> at the 50th percentile. Query plan changes from
-        scanning and discarding 5,011 rows to a direct index lookup. Measured, not
-        estimated — 350 timed runs plus 120 <code>EXPLAIN ANALYZE</code> samples against
-        Neon Postgres 17. Full output is in the repository.
+        <strong>19× faster</strong> at the 50th percentile — the query plan changes from
+        scanning and discarding 5,011 rows to a direct index lookup. Measured, not estimated:
+        350 timed runs plus 120 <code>EXPLAIN ANALYZE</code> samples. Full output in the repo.
       </p>
     </div>
 
     <div>
       <h2>How it is built</h2>
-      <ul style="font-size:9.5pt;">
+      <ul style="font-size:9pt;">
         <li><strong>Next.js 16</strong> (App Router, server components), TypeScript</li>
         <li><strong>PostgreSQL</strong> via Prisma — normalised schema, brand data keyed by tenant</li>
         <li><strong>Tailwind v4</strong> — one design system, per-brand design tokens</li>
         <li><strong>Playwright</strong> — 28 end-to-end tests on desktop and mobile, all passing</li>
-        <li>Deployed on <strong>Vercel</strong></li>
-        <li>Lighthouse mobile — <strong>100</strong> accessibility, best practices and SEO; 85 performance</li>
+        <li>Deployed on <strong>Vercel</strong>; Lighthouse mobile <strong>100</strong> accessibility, best practices and SEO</li>
       </ul>
 
-      <h2 style="margin-top:11px;">Two tests that matter most</h2>
-      <p style="font-size:9.5pt;margin-bottom:0;">
+      <h2 style="margin-top:9px;">Two tests that matter most</h2>
+      <p style="font-size:9pt;margin-bottom:0;">
         One brand's page can never render another brand's data, and one brand's item
         address returns "not found" under a different brand. Both are enforced by the
         database schema, and both are checked automatically on every run.
@@ -188,15 +202,12 @@
   <hr class="hr" />
 
   <h2>Why I built it</h2>
-  <p style="margin-bottom:5px;">
+  <p style="margin-bottom:5mm;">
     Shipping high-craft branded experiences for many different clients out of one team is a
     real engineering problem, and the tempting solution — fork the codebase per client — is
     the one that hurts two years later. I wanted to build the version that does not fork.
-  </p>
-  <p>
-    I built it in one evening specifically for this conversation, and I would rather show
-    something narrow and finished, with numbers I actually measured, than something broad
-    and half-working.
+    I built it in one evening for this conversation, and I would rather show something
+    narrow and finished, with numbers I measured, than something broad and half-working.
   </p>
 
   <div class="grow"></div>
@@ -204,9 +215,7 @@
   <div class="contact">
     <div>
       <div class="name">Adilet Masalbekov</div>
-      <div style="font-size:9.6pt;color:var(--muted);margin-top:2px;">
-        Software Developer
-      </div>
+      <div style="font-size:9.2pt;color:var(--muted);margin-top:1px;">Software Developer</div>
     </div>
     <div class="details">
       (437) 473-1202<br />
