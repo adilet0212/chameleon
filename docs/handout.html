@@ -148,17 +148,17 @@
         </tr>
         <tr>
           <td>50th percentile</td>
-          <td class="num">0.773 ms</td>
-          <td class="num win">0.042 ms</td>
+          <td class="num">0.782 ms</td>
+          <td class="num win">0.041 ms</td>
         </tr>
         <tr>
           <td>95th percentile</td>
-          <td class="num">0.961 ms</td>
-          <td class="num win">0.052 ms</td>
+          <td class="num">1.001 ms</td>
+          <td class="num win">0.048 ms</td>
         </tr>
       </table>
       <p class="note">
-        <strong>18.4× faster</strong> at the 50th percentile. Query plan changes from
+        <strong>19× faster</strong> at the 50th percentile. Query plan changes from
         scanning and discarding 5,011 rows to a direct index lookup. Measured, not
         estimated — 350 timed runs plus 120 <code>EXPLAIN ANALYZE</code> samples against
         Neon Postgres 17. Full output is in the repository.
