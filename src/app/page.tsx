@@ -150,7 +150,9 @@ export default async function Index() {
 
       <footer className="mt-16 border-t border-hairline pt-8 text-sm text-muted">
         <p>
-          All three brands are fictional. Built by Adilet Masalbekov ·{" "}
+          All three brands are fictional — names, copy, palettes and layouts are
+          invented for this project. Photography is free-licence stock from
+          Unsplash. Built by Adilet Masalbekov ·{" "}
           <a
             href="https://github.com/adilet0212"
             className="font-medium text-ink underline underline-offset-4"

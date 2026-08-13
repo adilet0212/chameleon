@@ -5,7 +5,7 @@
 - **Live demo:** https://chameleon-gray.vercel.app
 - **Source:** https://github.com/adilet0212/chameleon
 
-Three storefronts run on this deployment — a coffee roaster, an automotive dealer, and a fitness studio. They have different colours, typefaces, corner radii, imagery treatments, navigation labels and URL structures, and there is no per-brand code anywhere in the repository. All three brands are fictional; no real company's marks or assets appear here.
+Three storefronts run on this deployment — a coffee roaster, an automotive dealer, and a fitness studio. They have different colours, typefaces, corner radii, imagery treatments, navigation labels and URL structures, and there is no per-brand code anywhere in the repository. All three brands are fictional — names, copy, palettes, typography and layouts are invented for this project. Photography is free-licence stock from Unsplash; some frames incidentally show real production vehicles and their badging, which is unavoidable when the subject is a car and the source is a stock library. No affiliation with any real company is implied.
 
 |  |  |  |
 | :---: | :---: | :---: |

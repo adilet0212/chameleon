@@ -359,7 +359,10 @@ Fixed nothing, as instructed. In rough order of how bad it'd be if opened live:
 2. **Three conflicting benchmark numbers:** README 18.8x / schema comment 18.6x / committed JSON 18.2x. (§0.1)
 3. **Wrong path in a comment:** `schema.prisma:45` cites `src/components/layouts`, which doesn't exist.
 4. **Wrong viewport in README:** `README.md:185` says 390×844; `playwright.config.ts:32` is `Pixel 7`.
-5. **Real trademarked vehicles in a project that claims otherwise.** `public/vehicles/fordpickup.png` (Ford oval on the grille) and `ram.jpg` (RAM + Hennessey "Mammoth" badging) are wired to the two Haulmark listings. Meanwhile the repo states "no real company's marks or assets appear here" in **four places**: `README.md:8`, `docs/handout.html:131`, `prisma/seed.ts:8-9`, `src/app/page.tsx:153`. **Konrad's client list includes Kia — an automotive engineer will clock a Ford press shot instantly.** Their provenance is also unverified; the rest of the photography is free-licence Unsplash. If you have ten minutes tonight, either swap those two back or soften those four claims. If asked cold: *"Those two are placeholders a friend sent me and I wired them in late — the licensing isn't verified and they contradict the fictional-brands claim. They should come out."*
+5. *(Resolved.)* The two supplied press photos of real badged vehicles are gone — `public/vehicles/` is deleted and those listings are back on free-licence Unsplash stock. **The four claims were rewritten at the same time, and this is the part worth understanding**: swapping the images alone would not have made "no real company's marks appear here" true, because the Unsplash stand-ins are also photographs of real cars — the Range Rover shot has RANGE ROVER across the hood and a Land Rover grille badge. Free-licence stock of a car shows the car's marks. So all four now claim the accurate, verifiable thing: *the brands are invented; the photography is free-licence stock and some frames incidentally show real production vehicles; no affiliation is implied.*
+
+   If anyone raises it: *"The brands are entirely invented — names, copy, palettes, layouts. The photography is free-licence Unsplash, and stock photos of cars have badges on them, so I say that explicitly rather than claiming something I can't back."* That is a better answer than the original claim was.
+
 6. **`ram.jpg` was supplied as `ram.png`** — a JPEG with a PNG extension. I renamed it. Harmless, but if you `git log` live, the rename is visible.
 7. **`console.log` calls exist** but only in CLI scripts (`prisma/seed.ts`, `scripts/*`) where they are the intended output. **None in `src/`.** Clean.
 8. **No committed secrets.** `.env` is gitignored, only `.env.example` is tracked. I verified. Note your Neon credentials were pasted in plaintext during setup — **rotate them after the interview** regardless.
@@ -431,7 +434,7 @@ Say **"I didn't get to that"** — do not improvise. Each of these is a real gap
 ## Final checklist for tonight
 
 - [x] ~~Re-run `npm run benchmark`~~ — done, all four files synced to the same run (19.1x)
-- [ ] Decide on the two truck images (§7.5) — swap back or soften the four claims
+- [x] ~~Decide on the two truck images~~ — reverted to Unsplash, all four claims rewritten to be accurate
 - [ ] Rotate the Neon credentials after tomorrow
 - [ ] Open the live site on your phone once on cellular, not wifi
 - [ ] Know these five line numbers cold: `middleware.ts:49`, `layout.tsx:44`, `theme.ts:30`, `HomeLayouts.tsx:517`, `schema.prisma:151`

@@ -5,8 +5,14 @@ const prisma = new PrismaClient();
 /*
   Seed data.
 
-  All three brands are fictional. Names, copy, colours and imagery are invented for
-  this project — no real company's marks or assets appear anywhere in this repo.
+  All three brands are fictional: the names, copy, palettes, typography and page
+  layouts are invented for this project.
+
+  Photography is free-licence stock from Unsplash. Some frames incidentally show
+  real production vehicles and their badging — unavoidable when the subject is a
+  car and the source is a stock library — so the accurate claim is that the
+  *brands* are invented, not that no real mark appears in any photograph. Nothing
+  here implies affiliation with or endorsement by any real company.
 
   Two tiers of product data:
     - A hand-written set per brand. These are what a visitor actually sees and
@@ -293,7 +299,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500",
-      imageUrl: "/vehicles/fordpickup.png",
+      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
       name: "Haulmark 1500",
       blurb: "Half-ton pickup. 3.5L V6, 4x4.",
       description:
@@ -303,7 +309,7 @@ const northaven = {
     },
     {
       slug: "haulmark-2500-hd",
-      imageUrl: "/vehicles/ram.jpg",
+      imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
       name: "Haulmark 2500 HD",
       blurb: "Three-quarter ton. Diesel.",
       description:
@@ -364,7 +370,7 @@ const northaven = {
     },
     {
       slug: "haulmark-1500-cpo-2020",
-      imageUrl: "/vehicles/ram.jpg",
+      imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935",
       name: "Haulmark 1500 — Certified, 2020",
       blurb: "112,000 km. Fleet-maintained.",
       description:
