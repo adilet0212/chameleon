@@ -194,3 +194,48 @@ test("generated benchmark rows are never merchandised", async ({ page }) => {
   const res = await page.goto("/rook-and-ridge/menu/archive-espresso-1");
   expect(res?.status()).toBe(404);
 });
+
+// ---------------------------------------------------------------------------
+// 8. Subdomain addressing resolves to the same routes as path addressing.
+// ---------------------------------------------------------------------------
+/*
+  This is the one branch of src/middleware.ts that does real work, and until this
+  spec existed it had never been exercised — the deployment has no wildcard DNS,
+  so every other test reaches the app by path. Driving it through Playwright's
+  request API lets us set a Host header directly, which a browser will not allow.
+*/
+test.describe("subdomain addressing", () => {
+  for (const brand of BRANDS) {
+    test(`${brand.name} resolves from its subdomain`, async ({ request, baseURL }) => {
+      const res = await request.get(`${baseURL}/`, {
+        headers: { Host: `${brand.slug}.example.com` },
+      });
+      expect(res.status()).toBe(200);
+      // The rewrite is server-side, so the response body is the tenant's page
+      // even though the URL carries no tenant segment.
+      expect(await res.text()).toContain(`data-tenant="${brand.slug}"`);
+    });
+  }
+
+  test("a subdomain preserves the rest of the path", async ({ request, baseURL }) => {
+    const [coffee] = BRANDS;
+    const res = await request.get(`${baseURL}/${coffee.catalog}`, {
+      headers: { Host: `${coffee.slug}.example.com` },
+    });
+    expect(res.status()).toBe(200);
+    expect(await res.text()).toContain(`data-tenant="${coffee.slug}"`);
+  });
+
+  test("an apex host carries no tenant and serves the platform index", async ({
+    request,
+    baseURL,
+  }) => {
+    const res = await request.get(`${baseURL}/`, {
+      headers: { Host: "example.com" },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("One codebase");
+    expect(body).not.toContain('data-tenant="');
+  });
+});

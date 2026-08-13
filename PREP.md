@@ -2,13 +2,13 @@
 
 Everything below is grounded in code in this repo. Line numbers are from the current commit. Where I could not find something, it says **NOT FOUND IN REPO** — do not fill those in from memory.
 
-**Read section 0 first.** One real issue remains (§0.4, dead code). The other three are fixed — they are kept here because §0.1 still matters: the benchmark number moves between runs even though the files now agree.
+**Read section 0 first.** All four items are now fixed. They are kept because §0.1 still matters — the benchmark number moves between runs even though the files agree — and because §0.2 and §0.4 are worth *volunteering* rather than waiting to be asked.
 
 ---
 
 ## 0. FIX-OR-KNOW BEFORE 10:00
 
-These are real inconsistencies I verified. You do not have to fix them, but you must not be surprised by them.
+These were real inconsistencies I found by reading the repo. All are now fixed; what remains here is what to say about them.
 
 ### 0.1 The benchmark number moves between runs — say "about 19x"
 
@@ -30,11 +30,13 @@ The README claimed tests ran at 390×844 while `playwright.config.ts` used the P
 
 `prisma/schema.prisma:45` now correctly points at `src/components/HomeLayouts.tsx`. It previously named a `src/components/layouts` directory that never existed.
 
-### 0.4 `x-tenant` is dead code
+### 0.4 Dead code — removed, and the subdomain branch is now tested
 
-`src/middleware.ts:63` and `:71` set an `x-tenant` response header. **Nothing in the repo ever reads it** — I grepped `src`, `e2e`, and `scripts`. The middleware's only functional job is the subdomain rewrite at `:59-65`.
+`src/middleware.ts` used to set an `x-tenant` response header that nothing read. It is gone.
 
-Do not describe it as part of the resolution pipeline. If you get asked: *"That's vestigial — I set it intending to read it downstream for instrumentation and never did. It should come out."* Owning it is much better than being caught describing dead code as architecture.
+More useful: while removing it I checked whether the subdomain rewrite — the file's only real behaviour — actually works, by sending a `Host` header at the running server. **It does.** All three brands resolve from `brand.example.com`, deep paths survive the rewrite, and an apex host correctly falls through to the platform index. That is now five specs (`e2e/tenancy.spec.ts:207-241`) rather than a thing I had never seen run.
+
+**Worth volunteering:** *"Both addressing schemes are tested. The subdomain ones go through Playwright's request API rather than a page, because browsers won't let you set a Host header — so I drive it at the HTTP level and assert the rendered document carries the right tenant."* That is a good answer about testing something awkward, not an apology.
 
 ---
 
@@ -43,11 +45,11 @@ Do not describe it as part of the resolution pipeline. If you get asked: *"That'
 Narrate this for `GET /foundry`.
 
 **1. Middleware — `src/middleware.ts:49` `middleware(request)`**
-- Matcher at `:79` excludes `_next/static`, `_next/image`, favicon, and static file extensions, so this never runs for assets.
+- Matcher at `:73` excludes `_next/static`, `_next/image`, favicon, and static file extensions, so this never runs for assets.
 - `:52-53` — takes the first path segment, returns early if it's in `RESERVED` (`:23-29`).
 - `:56` — `tenantFromHost(host)` (`:36-47`) checks for a subdomain. Returns `null` for `.vercel.app` hosts (`:39`) and for anything in `APEX` (`:32`).
-- If a subdomain tenant is found and the path doesn't already start with it, `:59-65` rewrites `brand.example.com/menu` → `/brand/menu`. **This is the only functional behaviour in the file.**
-- `:69-72` sets the (unused) `x-tenant` header and continues.
+- If a subdomain tenant is found and the path doesn't already start with it, `:59-63` rewrites `brand.example.com/menu` → `/brand/menu`. **This is the only functional behaviour in the file**, and it is covered by specs at `e2e/tenancy.spec.ts:207-241`.
+- Otherwise `:67` returns `NextResponse.next()` — path addressing needs nothing done to it, because the `[tenant]` route segment already carries the identifier.
 - **Middleware never touches the database.** That's deliberate — the comment at `:15-20` explains it: it runs on every request, so a DB call here puts a query in front of everything.
 
 **2. Layout — `src/app/[tenant]/layout.tsx:36` `TenantLayout`**
@@ -219,7 +221,7 @@ Mobile, simulated throttling, against the deployed build.
 
 ## 4. THE TEST SUITE — what it actually proves
 
-**File:** `e2e/tenancy.spec.ts`. **9 specs × 2 projects = 18 tests.** Projects at `playwright.config.ts:30-43`: `Desktop Chrome`, and a mobile project pinned to **390×844** (`:36-42`) with Pixel 7's touch and user-agent characteristics. `webServer` (`:45-46`) runs `npm run build && next start`, so tests run against a **production build**, not dev.
+**File:** `e2e/tenancy.spec.ts`. **14 specs × 2 projects = 28 tests.** Projects at `playwright.config.ts:30-43`: `Desktop Chrome`, and a mobile project pinned to **390×844** (`:36-42`) with Pixel 7's touch and user-agent characteristics. `webServer` (`:45-46`) runs `npm run build && next start`, so tests run against a **production build**, not dev.
 
 ### What each spec genuinely asserts
 
@@ -232,6 +234,9 @@ Mobile, simulated throttling, against the deployed build.
 | Switcher re-theme | `:149-168` | Token changes, URL changes, `data-tenant` changes, and the header text updates — so it's a real navigation, not a colour swap. |
 | Unknown brand | `:173-176` | `/not-a-real-brand` → 404. |
 | Benchmark rows hidden | `:181-196` | No grid matches `/Archive \d+/`, and a generated slug 404s directly. |
+| Subdomain addressing (×3) | `:209-218` | `Host: brand.example.com` on `/` returns 200 and a document carrying that brand's `data-tenant`. Exercises the middleware rewrite. |
+| Subdomain deep path | `:220-227` | `Host: brand.example.com` on `/menu` preserves the path through the rewrite. |
+| Apex host | `:229-240` | `Host: example.com` serves the platform index and carries no `data-tenant`. |
 
 ### Blunt answer: do they prove tenant isolation?
 
@@ -246,10 +251,9 @@ A real version would assert that the set of rendered item slugs is a subset of t
 1. **Non-featured cross-tenant leakage** — as above. The test only knows three item names.
 2. **`listRelated` (`src/lib/tenant.ts:113-126`) is never tested.** It's tenant-filtered in code, but no test asserts it.
 3. **`getPage` / the About page is never tested for cross-tenant access.** `Page` has `@@unique([tenantId, slug])` (`schema.prisma:169`) so it should be safe, but nothing proves it.
-4. **The subdomain rewrite path (`middleware.ts:59-65`) has zero test coverage.** Every test uses path-based addressing. The subdomain branch is completely unexercised — I have never seen it work.
-5. **No concurrency test.** The classic RSC multi-tenancy bug is a theme cached across *different* requests. Every test is sequential; nothing hits two tenants concurrently and checks for bleed.
-6. **No test at the data layer.** All assertions are through the rendered DOM, so a leak that doesn't render as visible text is invisible to this suite.
-7. **No authorization tests** — because there is no auth (§5.7).
+4. **No concurrency test.** The classic RSC multi-tenancy bug is a theme cached across *different* requests. Every test is sequential; nothing hits two tenants concurrently and checks for bleed.
+5. **No test at the data layer.** All assertions are through the rendered DOM, so a leak that doesn't render as visible text is invisible to this suite.
+6. **No authorization tests** — because there is no auth (§5.7).
 
 **How to say it:** *"They prove the theming mechanism works and that the obvious cross-tenant URL attack 404s. The catalogue leakage test is weaker than it looks — it checks three known strings are absent, so it'd miss a leak of a product I didn't hardcode. The honest version compares rendered slugs against the tenant's actual row set."*
 
@@ -353,7 +357,7 @@ The honest answer visible in the code: they get one of three layouts and 19 toke
 
 Fixed nothing, as instructed. In rough order of how bad it'd be if opened live:
 
-1. **Dead code:** `x-tenant` header set at `middleware.ts:63,71`, never read anywhere. (§0.4)
+1. *(Fixed.)* The dead `x-tenant` header is removed, and the subdomain branch it sat next to now has test coverage. (§0.4)
 2. **Three conflicting benchmark numbers:** README 18.8x / schema comment 18.6x / committed JSON 18.2x. (§0.1)
 3. *(Fixed.)* `schema.prisma:45` now points at the real file, `src/components/HomeLayouts.tsx`.
 4. *(Fixed.)* The README/config viewport mismatch is gone — the mobile project is pinned to 390×844 and the README matches.
@@ -416,7 +420,7 @@ Say **"I didn't get to that"** — do not improvise. Each of these is a real gap
 3. **Migrations.** No `prisma/migrations/`. `db push` only.
 4. **Caching or invalidation.** No directives anywhere in `src`.
 5. **Tenant onboarding.** No script, no UI. A new brand means editing `prisma/seed.ts`.
-6. **Custom domains.** The subdomain branch (`middleware.ts:59-65`) exists in code but is untested and has never been exercised — there's no wildcard DNS and no domain-to-tenant mapping table. **Do not claim subdomain routing works. It compiles; that's all you know.**
+6. **Custom domains.** Subdomain *routing* works and is tested (`middleware.ts:59-63`, specs at `e2e/tenancy.spec.ts:207-241`) — you can say that confidently. What does **not** exist is the operational half: no wildcard DNS on the deployment, no domain-to-tenant mapping table, no certificate provisioning. So `foundry.example.com` resolves correctly if something points that hostname at the app, and nothing in this project points it there. *"The rewrite is tested; the DNS and cert automation that would make it real isn't built."*
 7. **Observability.** No logging, no error tracking, no tracing, no metrics.
 8. **Rate limiting, WAF, abuse handling.** None.
 9. **i18n / multi-currency.** `formatPrice` (`src/lib/tenant.ts:143`) is hardcoded to `en-CA` and `CAD`. A real multi-brand platform crossing markets breaks on this immediately — good thing to name unprompted.

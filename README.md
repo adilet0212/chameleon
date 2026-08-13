@@ -33,7 +33,7 @@ rook-and-ridge.example.com/menu   ->  /rook-and-ridge/menu   (subdomain)
 example.com/rook-and-ridge/menu   ->  /rook-and-ridge/menu   (path segment)
 ```
 
-`src/middleware.ts` folds the subdomain form into the path form with a rewrite. Duplicating routes per addressing scheme is exactly how a multi-tenant codebase starts forking, so there is one set of routes and middleware normalises into it.
+`src/middleware.ts` folds the subdomain form into the path form with a rewrite. Duplicating routes per addressing scheme is exactly how a multi-tenant codebase starts forking, so there is one set of routes and middleware normalises into it. Both addressing schemes are covered by the test suite — the subdomain specs drive Playwright's request API with an explicit `Host` header, since a browser will not let you set one.
 
 Middleware deliberately does **not** touch the database. It runs on every request, and opening a connection there would put a query in front of every asset. It resolves the *identifier* only; the tenant record is loaded in the server component that needs it, where React's `cache()` dedupes it to a single query per request. An unknown slug falls through to `notFound()`.
 
@@ -182,7 +182,7 @@ Raw reports: [`docs/lh-northaven.json`](docs/lh-northaven.json), [`docs/lh-found
 
 ## Testing
 
-Nine specs run against a production build on two viewports — desktop and a 390x844 phone — for 18 tests total, all passing. Mobile is not an afterthought here; half of what this project is for is the phone case.
+Fourteen specs run against a production build on two viewports — desktop and a 390x844 phone — for 28 tests total, all passing. Mobile is not an afterthought here; half of what this project is for is the phone case.
 
 The mobile project pins 390x844 rather than using a device preset. Pixel 7's 412px is wide enough to hide a crowded hero or a control that overflows its container — the brand switcher clipping its outer labels was a real bug on this project, caught at 375 — so the suite runs at the narrow end of what these pages actually get opened on.
 
@@ -195,6 +195,9 @@ The mobile project pins 390x844 rather than using a device preset. Pixel 7's 412
 | Brand switcher | Switching re-themes the app *and* actually navigates |
 | Unknown brand | 404s rather than rendering an unthemed shell |
 | Benchmark rows | Generated rows never appear in a catalogue and 404 when addressed directly |
+| Subdomain addressing (×3) | `brand.example.com/` serves that brand's page via middleware rewrite |
+| Subdomain deep path | `brand.example.com/menu` preserves the path through the rewrite |
+| Apex host | Carries no tenant and serves the platform index |
 
 The two isolation specs are the ones that would block a release. Both failure modes they cover — a brand rendering with another brand's design, and a brand's rows leaking into another brand's page — are only observable from outside, against a real render.
 

@@ -59,18 +59,12 @@ export function middleware(request: NextRequest) {
   if (subdomainTenant && first !== subdomainTenant) {
     const url = request.nextUrl.clone();
     url.pathname = `/${subdomainTenant}${pathname === "/" ? "" : pathname}`;
-    const response = NextResponse.rewrite(url);
-    response.headers.set("x-tenant", subdomainTenant);
-    return response;
+    return NextResponse.rewrite(url);
   }
 
-  // Path addressing: pass the resolved identifier downstream so server components
-  // and instrumentation can read it without re-parsing the URL.
-  const response = NextResponse.next();
-  if (first && SLUG.test(first)) {
-    response.headers.set("x-tenant", subdomainTenant ?? first);
-  }
-  return response;
+  // Path addressing needs nothing done to it: the [tenant] route segment already
+  // carries the identifier, and the server component loads the record from it.
+  return NextResponse.next();
 }
 
 export const config = {
