@@ -346,7 +346,7 @@ The honest answer visible in the code: they get one of three layouts and 19 toke
 
 **Plus, from the code:**
 
-4. **`public/vehicles/fordpickup.png` is 2.3 MB committed to git.** It's optimised on delivery by `next/image`, but it bloats the clone. And it's a real Ford with a visible badge — see §7.
+4. **All photography is stock, and it shows.** Every image is free-licence Unsplash, chosen to match each listing but not shot for these brands. A real client engagement would have art direction; this has a curated stock library. The provenance claims in the repo say exactly this, so you are consistent if asked.
 5. **Pagination is a hard `take: 24`** (`src/lib/tenant.ts:66`) with no next page. With 12 visible items per brand nobody notices, but the catalogue genuinely cannot show item 25.
 
 ---
