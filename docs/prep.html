@@ -1,0 +1,263 @@
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chameleon — interview prep</title>
+<style>
+  /*
+    Read on a phone, early, under pressure. Two decisions carry the page:
+
+    1. System type stacks, not a webfont. The artifact CSP blocks font CDNs, and
+       a silent fallback on the morning this is needed is worse than a native
+       face that renders instantly.
+    2. Spoken lines are set in a serif; reference material is sans. The thing you
+       say out loud should never look like the thing you look up.
+  */
+  :root {
+    --paper: #fafbfc;
+    --raise: #ffffff;
+    --ink: #12171c;
+    --muted: #5b6570;
+    --rule: #e3e8ed;
+    --accent: #0e5c63;
+    --accent-soft: #e6f1f1;
+    --warn: #8c3b2e;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --serif: ui-serif, Georgia, Charter, "Times New Roman", serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0d1216; --raise: #141b21; --ink: #e7edf2; --muted: #97a3ae;
+      --rule: #223039; --accent: #5fd4c8; --accent-soft: #10262a; --warn: #e8927f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0d1216; --raise: #141b21; --ink: #e7edf2; --muted: #97a3ae;
+    --rule: #223039; --accent: #5fd4c8; --accent-soft: #10262a; --warn: #e8927f;
+  }
+  :root[data-theme="light"] {
+    --paper: #fafbfc; --raise: #ffffff; --ink: #12171c; --muted: #5b6570;
+    --rule: #e3e8ed; --accent: #0e5c63; --accent-soft: #e6f1f1; --warn: #8c3b2e;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); font-size: 17px; line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 36rem; margin: 0 auto; padding: 1.25rem 1.15rem 5rem; }
+
+  h1 {
+    font-size: 1.75rem; line-height: 1.15; letter-spacing: -0.02em;
+    margin: 0 0 .5rem; text-wrap: balance;
+  }
+  h2 {
+    font-size: 1.22rem; line-height: 1.25; letter-spacing: -0.015em;
+    margin: 2.4rem 0 .9rem; padding-top: .9rem; border-top: 2px solid var(--ink);
+    text-wrap: balance; scroll-margin-top: 3.6rem;
+  }
+  h3 {
+    font-size: 1.02rem; line-height: 1.3; margin: 1.6rem 0 .5rem;
+    letter-spacing: -0.01em; color: var(--accent); text-wrap: balance;
+  }
+  p { margin: 0 0 .85rem; }
+  hr { border: 0; height: 1px; background: var(--rule); margin: 1.8rem 0; }
+  a { color: var(--accent); }
+
+  strong { font-weight: 650; }
+  code {
+    font-family: var(--mono); font-size: .85em;
+    background: var(--accent-soft); padding: .1em .34em; border-radius: 3px;
+    word-break: break-word;
+  }
+
+  /* Spoken lines. Serif, so a quotable sentence never reads as reference text. */
+  blockquote {
+    margin: 1rem 0 1.2rem; padding: .85rem 0 .85rem 1rem;
+    border-left: 3px solid var(--accent);
+    font-family: var(--serif); font-size: 1.06rem; line-height: 1.55;
+  }
+  blockquote p { margin: 0 0 .7rem; }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  ul, ol { margin: 0 0 .95rem; padding-left: 1.25rem; }
+  li { margin-bottom: .42rem; }
+  li::marker { color: var(--muted); }
+  li.done { color: var(--muted); text-decoration: line-through; }
+  .box { display: inline-block; width: 1.1em; color: var(--accent); text-decoration: none; }
+
+  .scroll { overflow-x: auto; margin: 0 0 1.1rem; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td {
+    text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-size: .72rem; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--muted); font-weight: 700; white-space: nowrap;
+  }
+  /* Cells wrap. An earlier nowrap kept the benchmark figures on one line but
+     pushed the prose tables off a 390px screen, which is the wrong trade on the
+     one table that has to be readable at a glance. */
+  td { font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { width: 34%; }
+
+  /* Jump nav — the page is long and gets read out of order. */
+  nav {
+    position: sticky; top: 0; z-index: 5; margin: 0 -1.15rem 1.5rem;
+    padding: .55rem 1.15rem; background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule);
+    display: flex; gap: .4rem; overflow-x: auto; scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    flex: 0 0 auto; font-size: .78rem; font-weight: 600; text-decoration: none;
+    color: var(--muted); padding: .4rem .6rem; border: 1px solid var(--rule);
+    border-radius: 999px; white-space: nowrap; min-height: 32px;
+    display: inline-flex; align-items: center;
+  }
+  nav a:hover, nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+
+  :where(a, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+<nav><a href="#1-the-six-facts-to-know-cold">THE SIX FACTS TO KNOW COLD</a><a href="#2-the-pitch-90-seconds-spoken">THE PITCH (90 seconds, spoken)</a><a href="#3-the-request-trace">THE REQUEST TRACE</a><a href="#4-the-five-decisions">THE FIVE DECISIONS</a><a href="#5-the-numbers">THE NUMBERS</a><a href="#6-the-tests-what-they-actually-prove">THE TESTS — what they actually prove</a><a href="#7-the-ten-hard-questions">THE TEN HARD QUESTIONS</a><a href="#8-limitations-to-name-first">LIMITATIONS TO NAME FIRST</a><a href="#9-if-they-open-the-repo">IF THEY OPEN THE REPO</a><a href="#10-questions-to-ask-pick-3">QUESTIONS TO ASK (pick 3)</a><a href="#11-what-i-cannot-answer-say-i-didn-t-get-to-that">WHAT I CANNOT ANSWER — say "I didn't get to that"</a><a href="#tonight">Tonight</a></nav>
+<h1>Chameleon — interview prep</h1>
+<p>Everything here is verified against the code. If something says <strong>NOT IN REPO</strong>, don't fill it in from memory.</p>
+<p>Read §1 and §2 properly. Skim the rest. §5 and §7 are the ones to reread on the subway.</p>
+<hr />
+<h2 id="1-the-six-facts-to-know-cold">1. THE SIX FACTS TO KNOW COLD</h2>
+<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td><strong>What it is</strong></td><td>3 branded storefronts, 1 codebase, no per-brand code</td></tr><tr><td><strong>The mechanism</strong></td><td>Tenant row → 19 CSS custom properties on one wrapper element</td></tr><tr><td><strong>The index</strong></td><td><code>@@unique([tenantId, slug])</code> — isolation <em>and</em> speed, same key</td></tr><tr><td><strong>The number</strong></td><td><strong>~19x</strong> faster server-side. End-to-end ~1.0x (network dominates)</td></tr><tr><td><strong>Tests</strong></td><td>28 passing (14 specs × desktop + 390px mobile)</td></tr><tr><td><strong>Scale</strong></td><td>15,036 rows seeded, 36 shown</td></tr></tbody></table></div>
+<p><strong>Three numbers you'll be asked for:</strong> 19x · 15,036 rows · 28 tests.</p>
+<p><strong>Never say "19.1x." Say "about 19x."</strong> It moves between runs (18.2–19.1 observed). If someone clones it and gets 18.4, "about 19x" still holds. A memorised decimal doesn't.</p>
+<hr />
+<h2 id="2-the-pitch-90-seconds-spoken">2. THE PITCH (90 seconds, spoken)</h2>
+<p>Know the four beats. Don't recite.</p>
+<blockquote><p>"So — Chameleon. Three consumer storefronts: a coffee roaster, a car dealership, a fitness studio. Different colours, typefaces, page structures, even different URL schemes — the roaster's catalogue is at <code>/menu</code>, the dealer's is at <code>/inventory</code>. All one codebase, no per-brand code in it.</p><p>I built it for you specifically. The thing about Konrad is you ship high-craft branded work for a lot of clients out of one team — and the tempting way to do that is fork the codebase per client. Works great until you're maintaining eight of them and fixing the same bug eight times.</p><p>So the idea is: brand identity is data. There's a tenants table, each row has a theme with about nineteen design tokens and a <code>layoutVariant</code> that picks which of three page compositions renders. Middleware normalises the URL, the layout resolves the tenant and writes those tokens onto one wrapper as CSS custom properties, everything underneath styles itself from those. Adding a client is an insert, not a fork.</p><p>The bit I'd want to talk about is the database side. Product slugs are unique <em>per tenant</em>, not globally — so two clients can both have <code>/espresso</code>. That composite key does double duty: it's the isolation boundary, because one brand's slug under another brand can't match, and it's the index behind the detail page. About nineteen times faster on server-side execution across fifteen thousand rows. Though end-to-end it's basically flat — I measured from Toronto against a database in Virginia, and thirty milliseconds of network swamps a sub-millisecond saving. Both numbers are in the README; reporting only the good one would've been dishonest.</p><p>One evening, so there's plenty it doesn't do — no caching, no auth, no migrations. Happy to go into any of it."</p></blockquote>
+<p><strong>Why that ending works:</strong> naming the gaps yourself turns them into scope decisions instead of discoveries.</p>
+<hr />
+<h2 id="3-the-request-trace">3. THE REQUEST TRACE</h2>
+<p>Narrate for <code>GET /foundry</code>. Eight steps.</p>
+<ol>
+<li><strong><code>src/middleware.ts:49</code></strong> — resolves the <em>identifier</em> only, never touches the DB (it runs on every request; a query here sits in front of everything). Subdomain form rewritten to path form at <code>:59-63</code>. Otherwise <code>:67</code> passes through.</li>
+<li><strong><code>src/app/[tenant]/layout.tsx:44</code></strong> — <code>Promise.all([getTenant(slug), listTenants()])</code>.</li>
+<li><strong><code>:46</code></strong> — <code>if (!tenant) notFound()</code>. <strong>Unknown tenants 404 here, not in middleware.</strong></li>
+<li><strong><code>src/lib/tenant.ts:30</code> <code>getTenant</code></strong> — <code>findUnique</code> on slug with <code>include: { theme: true }</code>. Wrapped in React <code>cache()</code>, so metadata + layout + page share one query.</li>
+<li><strong><code>src/lib/theme.ts:30</code> <code>themeToCssVars</code></strong> — returns <strong>19 CSS custom properties</strong>.</li>
+<li><strong><code>layout.tsx:56-61</code></strong> — <code>&lt;div id="tenant-scope" style={...}&gt;</code>. <strong>That inline style object is the entire theming mechanism.</strong></li>
+<li><strong><code>src/app/globals.css:17</code> <code>@theme inline</code></strong> — maps <code>--color-primary: var(--t-primary)</code>, so <code>bg-primary</code> resolves to whatever the wrapper set.</li>
+<li><strong><code>src/components/HomeLayouts.tsx:517</code></strong> — <code>switch (tenant.layoutVariant)</code> → <code>Dense</code> / <code>Showcase</code> / <code>Editorial</code>. <strong>Switches on a token, never a brand name.</strong></li>
+</ol>
+<p><strong>One sentence:</strong> <em>"Middleware normalises the URL, the layout resolves the tenant and writes nineteen custom properties onto one wrapper, Tailwind maps its utilities onto those, and a <code>layoutVariant</code> string picks the page composition — so the component tree never knows which brand it's rendering."</em></p>
+<hr />
+<h2 id="4-the-five-decisions">4. THE FIVE DECISIONS</h2>
+<h3>4.1 Runtime DB theming — not build-time config, not separate deploys</h3>
+<ul>
+<li><strong>Alternatives:</strong> build-time config is faster but every brand change needs a deploy. Separate deploys isolate best but it's N codebases in practice — N upgrades, N places to fix one bug.</li>
+<li><strong>Why:</strong> onboarding must be an insert, not a fork. Only holds if identity is data at runtime.</li>
+<li><strong>Cost:</strong> <strong>7 SQL statements per home render</strong> (measured). No caching. Tokens ship inline on every response, so they can't be a cached static stylesheet.</li>
+</ul>
+<h3>4.2 <code>@@unique([tenantId, slug])</code> — <code>prisma/schema.prisma:151</code></h3>
+<ul>
+<li>Slugs unique <strong>per tenant</strong>, not globally. Two clients can both have <code>/espresso</code>.</li>
+<li>One brand's slug under another <strong>can't match</strong> — isolation is the key, not a filter someone remembered.</li>
+<li><strong>Cost:</strong> every read must carry <code>tenantId</code>. There is deliberately no "get by id" path.</li>
+</ul>
+<h3>4.3 Middleware resolves the ID; the server component loads the data</h3>
+<ul>
+<li><strong>Why:</strong> middleware runs on everything; Prisma there means a connection in front of every request.</li>
+<li><strong>Cost:</strong> can't 404 unknown tenants early — costs a route match and a DB round trip first.</li>
+</ul>
+<h3>4.4 <code>layoutVariant</code> — structure is a token too</h3>
+<ul>
+<li>Three genuinely different compositions, not one skeleton with new colours. This is your answer to <em>"isn't this just CSS variables?"</em></li>
+<li><strong>Cost — concede it:</strong> it's a <code>switch</code>. A <em>new</em> arrangement is a code change. <strong>Colour is data; structure is a fixed menu.</strong> Invalid values silently fall back to <code>editorial</code>.</li>
+</ul>
+<h3>4.5 <code>isCatalogueVisible</code> — <code>schema.prisma:129</code></h3>
+<ul>
+<li>15,036 rows so the benchmark measures something real; 36 shown so the site looks finished. Every user-facing query filters on it; the benchmark deliberately doesn't.</li>
+<li><strong>Cost:</strong> a second predicate every query must remember. One <code>visible</code> const (<code>tenant.ts:28</code>) is the mitigation.</li>
+</ul>
+<hr />
+<h2 id="5-the-numbers">5. THE NUMBERS</h2>
+<h3>The benchmark — <code>scripts/benchmark.ts</code> → <code>benchmark-results.json</code></h3>
+<p>Compares <code>WHERE "tenantId" = $1 AND slug = $2</code> with and without the composite index, on 15,036 rows.</p>
+<div class="scroll"><table><thead><tr><th></th><th>Without</th><th>With</th><th></th></tr></thead><tbody><tr><td><strong>Server-side p50</strong></td><td>0.782 ms</td><td>0.041 ms</td><td><strong>19.1x</strong></td></tr><tr><td>Server-side p95</td><td>1.001 ms</td><td>0.048 ms</td><td>20.9x</td></tr><tr><td>End-to-end p50</td><td>29.25 ms</td><td>29.14 ms</td><td>1.0x</td></tr></tbody></table></div>
+<p><strong>Plan flips:</strong> <code>Bitmap Heap Scan</code> (271 buffers, 5,011 rows discarded) → <code>Index Scan</code> (4 buffers).</p>
+<p><strong>Lead with the caveat — don't wait to be asked:</strong></p>
+<blockquote><p><em>"About 19x on server-side execution. End-to-end it's 1.0x, because I measured from Toronto against us-east-1 and roughly 29ms of every query is network — the saving disappears into the round trip. Both are in the README; reporting one would've been misleading."</em></p></blockquote>
+<h3>Concede these if pushed</h3>
+<ol>
+<li><strong>Phases run sequentially, not interleaved</strong> — drift between them contaminates the end-to-end comparison.</li>
+<li><strong>Benchmarked query ≠ production query</strong> — the benchmark omits the <code>isCatalogueVisible</code> filter.</li>
+<li><strong>"Without index" isn't "no index"</strong> — a <code>(tenantId, category)</code> index still exists, so it's a filtered bitmap scan. <strong>Don't call it a sequential scan.</strong></li>
+<li>Single machine, single run, no confidence intervals.</li>
+</ol>
+<h3>Lighthouse (mobile, deployed)</h3>
+<div class="scroll"><table><thead><tr><th></th><th>Northaven</th><th>Foundry</th><th>Rook &amp; Ridge</th></tr></thead><tbody><tr><td>Performance</td><td>85</td><td>84</td><td>82</td></tr><tr><td>A11y / BP / SEO</td><td>100</td><td>100</td><td>100</td></tr><tr><td><strong>CLS</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td></tr></tbody></table></div>
+<p><strong>Lead with CLS 0</strong> — three full-bleed hero photographs and nothing shifts. Perf is 82–85 because five font families load at root (so a brand switch never triggers a font request) and LCP is a photograph. Own it as a trade and name the fix: load only the active brand's pair, prefetch the rest at idle.</p>
+<h3>Never measured — say "I didn't"</h3>
+<p>Throughput/RPS · tenant onboarding time · cold start/TTFB · bundle size. All <strong>NOT IN REPO</strong>.</p>
+<hr />
+<h2 id="6-the-tests-what-they-actually-prove">6. THE TESTS — what they actually prove</h2>
+<p><strong><code>e2e/tenancy.spec.ts</code> — 14 specs × 2 projects = 28 tests.</strong> Production build, not dev. Mobile pinned to <strong>390×844</strong> rather than a device preset, because 412px is wide enough to hide a crowded hero — the switcher clipping its labels was a real bug caught at 375.</p>
+<p><strong>Covered:</strong> per-brand theme tokens · cross-brand slug 404 · catalogue leakage · per-tenant URL structure · switcher re-theme · unknown brand 404 · benchmark rows hidden · <strong>subdomain addressing (5 specs, driven via <code>Host</code> header through the request API — browsers won't let you set one)</strong>.</p>
+<h3>Blunt: do they prove isolation? Partially.</h3>
+<p>The leakage spec checks <strong>three hardcoded strings are absent</strong> from the grid. If a query dropped its tenant filter and leaked a <em>non-featured</em> product, <strong>it would still pass.</strong> The honest version compares rendered slugs against the tenant's actual row set.</p>
+<p><strong>Not covered:</strong> non-featured cross-tenant leakage · <code>listRelated</code> · the About page · concurrency (a theme cached across requests — the classic RSC bug) · anything below the DOM · auth (none exists).</p>
+<p><strong>Say it this way:</strong> <em>"They prove the theming works and the obvious cross-tenant URL attack 404s. The leakage test is weaker than it looks — it checks three known strings, so it'd miss a leak of a product I didn't hardcode."</em></p>
+<hr />
+<h2 id="7-the-ten-hard-questions">7. THE TEN HARD QUESTIONS</h2>
+<p><strong>1. "No caching? Every view hits Postgres?"</strong> Yes. No <code>revalidate</code>, no <code>unstable_cache</code>, nothing. React <code>cache()</code> dedupes <em>within</em> one request only. → <em>"Nothing, deliberately, and it's the first thing I'd add. But there's no write path yet, so I'd have been guessing at the invalidation contract."</em></p>
+<p><strong>2. "N+1?"</strong> Not classic — no query in a render loop. But <code>include: { theme: true }</code> makes Prisma issue a <strong>second query per include</strong> — 2 of the 7.</p>
+<p><strong>3. "What breaks at 300 tenants?"</strong> ← <em>sharpest question, best answer</em> <code>layout.tsx:44</code> calls <code>listTenants()</code> on <strong>every request</strong>, unbounded, no <code>take</code>, purely to fill the brand switcher. At 300 tenants that's 300 tenants + 300 themes per page load. → <em>"The switcher. It's a demo affordance — in production a user belongs to one brand, so it wouldn't exist at all rather than get paginated."</em></p>
+<p><strong>4. "A designer changes a theme — what invalidates?"</strong> Nothing, because there's no write path and no cache. → <em>"Immediate today, which is a non-answer since the only way to change a theme is a re-seed. Add caching and I'd need tag-based invalidation on theme write — which is exactly why I didn't add caching first."</em></p>
+<p><strong>5. "Where can data leak?"</strong> A new query forgetting <code>tenantId</code>. <strong><code>src/lib/tenant.ts</code> is the only file under <code>src/</code> that imports Prisma</strong> — verified. So the leak vector is "someone adds an import," which is visible in review. → <em>"Convention, not enforcement. RLS would make it structural."</em></p>
+<p><strong>6. "Migrations?"</strong> None. No <code>prisma/migrations/</code>. <code>db push</code> only. → <em>"Fine for one night where I own the database and re-seed freely. Unacceptable with real data. Production is <code>prisma migrate</code> with checked-in SQL — and the multi-tenant wrinkle is that a column added to <code>products</code> locks a table every tenant reads."</em></p>
+<p><strong>7. "Auth?"</strong> None. Storefronts are genuinely public. → <em>"Read access is legitimately unauthenticated. What's missing is the admin side — a user belonging to a tenant, editing only that tenant. That's where multi-tenancy gets hard and I didn't build it."</em></p>
+<p><strong>8. "Why not row-level security?"</strong> Not used. → <em>"Application-level plus a composite key. RLS is strictly better — it survives a developer forgetting a filter, which is the actual failure mode. Prisma's support needs session variables per connection and I was on a pooled connection. It's the right answer at scale."</em></p>
+<p><strong>9. "Your variants are a switch — how's that different from <code>if tenant === 'Foundry'</code>?"</strong> Don't oversell this one. → <em>"You're right that structure is a bounded menu and only the selection is data. Switching on a data value means three brands can share <code>editorial</code> and a fourth needs no code — but a genuinely new arrangement is a code change."</em></p>
+<p><strong>10. "What if a tenant wants something the tokens can't express?"</strong> No escape hatch exists. → <em>"Nothing today. That's the real tension — the value is that brands can't fork, and the cost is that a novel requirement changes shared code. You'd want a bounded escape hatch, and I'd want to see the actual request before designing it."</em></p>
+<hr />
+<h2 id="8-limitations-to-name-first">8. LIMITATIONS TO NAME FIRST</h2>
+<ol>
+<li><strong>One evening.</strong> No caching, migrations, auth, admin. Say the scope early — it reframes every gap as a decision.</li>
+<li><strong>Fictional brands, no production traffic.</strong> The hard part of multi-tenancy is the tenth client's weird requirement. This has never met one.</li>
+<li><strong>The suite proves less than "28 tests" suggests</strong> (§6). Volunteer it before they find it.</li>
+<li><strong>All photography is stock</strong> — free-licence Unsplash curated to match listings, not art-directed.</li>
+<li><strong>Pagination is a hard <code>take: 24</code></strong> with no next page. The catalogue genuinely cannot show item 25.</li>
+</ol>
+<hr />
+<h2 id="9-if-they-open-the-repo">9. IF THEY OPEN THE REPO</h2>
+<p>Clean: no <code>console.log</code> in <code>src/</code> (only CLI scripts) · no committed secrets (<code>.env</code> gitignored) · build passes · <code>tsc</code> clean · 28/28 tests · working tree clean.</p>
+<p><strong>Two things to know:</strong></p>
+<ul>
+<li>The <strong>provenance claim</strong> (README, handout, seed, landing page) says: brands invented, photography free-licence stock, some frames incidentally show real production vehicles, no affiliation implied. That's deliberate — stock photos of cars have badges on them, so claiming "no real marks" would have been false.</li>
+<li><strong>Neon credentials were pasted in plaintext during setup — rotate them after tomorrow.</strong></li>
+</ul>
+<hr />
+<h2 id="10-questions-to-ask-pick-3">10. QUESTIONS TO ASK (pick 3)</h2>
+<ol>
+<li><strong>"When you take on a new client brand, what actually gets reused — a component library, a starter, or does each engagement mostly start fresh?"</strong></li>
+<li><strong>"How do you handle the client who wants something the design system can't express — extend the system, or fork and accept the drift?"</strong> ← your own §7.10, asked back</li>
+<li><strong>"Where's the handoff between design and engineering on tokens? Are designers editing values that reach production?"</strong></li>
+<li><strong>"For consumer work at your scale, who owns the performance budget when a client's brand direction is expensive to render?"</strong> ← lets you raise your own 82–85 honestly</li>
+<li><strong>"Given BrainStation, is there a house way of doing things new engineers learn, or does it vary by team?"</strong></li>
+</ol>
+<hr />
+<h2 id="11-what-i-cannot-answer-say-i-didn-t-get-to-that">11. WHAT I CANNOT ANSWER — say "I didn't get to that"</h2>
+<p>Auth · any write path · migrations · caching and invalidation · tenant onboarding · <strong>custom domains</strong> (the rewrite is tested; DNS, domain mapping and certs don't exist) · observability · rate limiting · <strong>i18n — <code>formatPrice</code> is hardcoded <code>en-CA</code>/<code>CAD</code>, which breaks immediately across markets</strong> · CI (no workflows; tests exist, nothing runs them) · load testing · accessibility beyond automated Lighthouse.</p>
+<p><strong>The fallback:</strong> <em>"I didn't build that. One evening, and I spent it on making brand identity data instead of code and proving the isolation held. Here's how I'd approach it…"</em> — then actually say how.</p>
+<hr />
+<h2 id="tonight">Tonight</h2>
+<ul>
+<li class="done"><span class="box"&gt;✓</span>Benchmark re-run, all files synced</li>
+<li class="done"><span class="box"&gt;✓</span>Truck images reverted, provenance claims accurate</li>
+<li class="done"><span class="box"&gt;✓</span>Dead code removed, subdomain branch tested</li>
+<li><span class="box"&gt;○</span>Open the live site on your phone, on cellular not wifi</li>
+<li><span class="box"&gt;○</span>Know cold: <code>middleware.ts:49</code> · <code>layout.tsx:44</code> · <code>theme.ts:30</code> · <code>HomeLayouts.tsx:517</code> · <code>schema.prisma:151</code></li>
+<li><span class="box"&gt;○</span>Rotate Neon credentials after tomorrow</li>
+</ul>
+</div>
